@@ -1,0 +1,24 @@
+# МВС СТ · Ход работ — веб-приложение
+
+Веб-версия дашборда направлений (Капремонт школ, Капремонт МКД, Сети, Благоустройство):
+общая база MySQL, вход по ролям, расчёт показателей на сервере, адаптивный интерфейс на React.
+
+## С чего начать
+
+1. [docs/01-architecture.md](docs/01-architecture.md) — из чего состоит приложение и почему так (начните с него).
+2. [docs/02-database.md](docs/02-database.md) — пояснения к базе данных и перенос старых данных.
+3. [database/schema.sql](database/schema.sql) — скрипт создания таблиц.
+4. [docs/03-deployment.md](docs/03-deployment.md) — установка у себя и на сервере.
+
+## Состав
+
+| Папка | Что внутри | Статус |
+|---|---|---|
+| `database/` | структура MySQL | ✅ шаг 1 |
+| `docs/` | документация | ✅ шаг 1 |
+| `server/` | Node.js + Express: API, вход, расчёты KPI, импорт — см. [server/README.md](server/README.md) | ✅ шаг 2 (вход, роли, права), ✅ шаг 3 (перенос данных, миграции), ✅ шаг 4 (KPI и «Сводка», сверены с прежними модулями) |
+| `client/` | React + Vite: интерфейс — см. [client/README.md](client/README.md) | ✅ шаг 5 (вход, смена пароля, тема, «Сводка»); шаги 6–7 впереди |
+
+## Стек
+
+Node.js 24 LTS · Express 5 · MySQL 8.4 · React 19 · Vite · React Router · TanStack Query · Recharts · Leaflet · Nginx · PM2

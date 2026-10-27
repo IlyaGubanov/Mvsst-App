@@ -1,0 +1,42 @@
+/* auth.css — страницы входа и смены пароля */
+
+.auth {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px var(--gutter);
+}
+.auth-card {
+  width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 28px 24px; display: flex; flex-direction: column; gap: 18px;
+}
+.auth-head { display: flex; align-items: center; gap: 12px; }
+.auth-head h1 { font-size: 20px; }
+.auth-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.auth-note { margin: 0; color: var(--ink-2); font-size: 13.5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 500; font-size: 13px; }
+.field input {
+  width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 9px;
+  border: 1px solid var(--line-2); background: var(--surface); font-size: 16px; /* 16px — чтобы телефон не увеличивал страницу */
+}
+.field input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-wash); }
+.field input[aria-invalid="true"] { border-color: var(--crit); }
+.field .err { color: var(--crit-ink); font-size: 12.5px; }
+.field .hint { color: var(--muted); font-size: 12.5px; }
+.pwd { position: relative; }
+.pwd input { padding-right: 44px; }
+.pwd button {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px;
+  border: 0; border-radius: 7px; background: none; color: var(--muted); display: grid; place-items: center;
+}
+.pwd button:hover { color: var(--ink); background: var(--surface-2); }
+.pwd svg { width: 18px; height: 18px; }
+
+.form-error {
+  padding: 10px 12px; border-radius: 9px; background: var(--crit-wash); color: var(--crit-ink); font-size: 13.5px;
+}
+.auth-card .btn { min-height: 44px; font-size: 15px; }
+.auth-links { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.auth-links button { border: 0; background: none; padding: 0; color: var(--accent-ink); }
+.rules { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 12.5px; }
+.rules li.ok { color: var(--good-ink); }

@@ -1,0 +1,31 @@
+{
+  "name": "mvs-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "МВС СТ · Ход работ — сервер приложения (API)",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "check-db": "node src/scripts/check-db.js",
+    "migrate": "node src/scripts/migrate.js",
+    "create-admin": "node src/scripts/create-admin.js",
+    "import-legacy": "node src/scripts/import-legacy.js",
+    "recalc-kpi": "node src/scripts/recalc-kpi.js",
+    "verify-kpi": "node src/scripts/verify-kpi.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "express": "^5.1.0",
+    "express-mysql-session": "^3.0.3",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "helmet": "^8.1.0",
+    "mysql2": "^3.14.0",
+    "zod": "^3.25.0"
+  }
+}

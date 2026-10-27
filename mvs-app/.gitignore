@@ -1,0 +1,21 @@
+# Библиотеки — скачиваются командой npm install, в Git не храним
+node_modules/
+
+# Настройки с паролями — НИКОГДА не публикуем
+.env
+.env.*
+!.env.example
+*.local.txt
+
+# Результаты сборки
+client/dist/
+
+# Резервные копии и выгрузки базы
+*.sql.gz
+backups/
+
+# Служебные файлы
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
