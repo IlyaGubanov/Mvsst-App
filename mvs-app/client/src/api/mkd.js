@@ -60,6 +60,16 @@ export const useMkdGantt = (period, filters = {}, psd = false) => {
   });
 };
 
+/** Экран «Финансы»: структура стоимости (3 разреза), ждут оплаты, КС-2 выше договора, экономия. */
+export const useMkdFinance = (period, filters = {}) => {
+  const qs = new URLSearchParams(Object.entries({ period, ...filters }).filter(([, v]) => v != null && v !== '')).toString();
+  return useQuery({
+    queryKey: ['mkd', 'finance', period ?? 'current', filters],
+    queryFn: () => api(`/mkd/finance${qs ? `?${qs}` : ''}`),
+    placeholderData: (prev) => prev,
+  });
+};
+
 /** Карточка адреса на период. */
 export const useMkdObject = (id, period, options = {}) => useQuery({
   queryKey: ['mkd', 'object', id, period ?? 'current'],

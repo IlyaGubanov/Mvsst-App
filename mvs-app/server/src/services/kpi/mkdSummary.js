@@ -77,7 +77,9 @@ export async function loadMkdHistory(direction) {
     cache.set(p.period_start, m);
     return m;
   };
-  return { items, periods, calcAt, riskOf };
+  // Статусы позиции, внесённые по периодам (по возрастанию) — для «сколько недель ждёт оплату»
+  const statusesOf = (itemId) => byItem.get(itemId) ?? [];
+  return { items, periods, calcAt, riskOf, statusesOf };
 }
 
 /**
@@ -329,4 +331,66 @@ export async function computeMkdGantt(direction, periodStart, f, opts = {}) {
     end: (() => { const [y, m] = max.split('-').map(Number); return m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`; })(),
   } : null;
   return { planDate: period.plan_date, scale, objects, psd: Boolean(opts.psd), filtered: isFiltered(f) };
+}
+
+// =====================================================================
+//  Экран «Финансы» (vFin прежнего модуля).
+//  1) Структура стоимости по группам работ, видам работ или разделам — деньги по стадиям.
+//  2) КС-2 подписаны, но не оплачены: сколько недель ждёт — от начала текущей непрерывной серии
+//     статуса «КС-2 подписаны» среди внесённых статусов (как в прежнем модуле).
+//  3) КС-2 выше договора.  4) Ожидаемая экономия: сумма «в работе» минус прогноз КС-2.
+// =====================================================================
+
+export async function computeMkdFinance(direction, periodStart, f) {
+  const H = await loadMkdHistory(direction);
+  const period = H.periods.find((p) => p.period_start === periodStart);
+  const C = H.calcAt(period);
+  const items = filterItems(H.items, f);
+  const rows = items.map((i) => ({ i, c: C.get(i.id).c }));
+  const sections = new Map((await query('SELECT id, name FROM mkd_sections')).map((s) => [s.id, s.name]));
+
+  // Структура стоимости — три разреза сразу (переключает интерфейс); строки по убыванию договора
+  const cut = (keyOf) => {
+    const groups = new Map();
+    rows.forEach((r) => {
+      const k = keyOf(r.i);
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(r.c);
+    });
+    return [...groups].map(([name, list]) => ({ name, ...money(agg(list, H.riskOf)) })).sort((x, y) => y.contract - x.contract);
+  };
+  const structure = {
+    group: cut((i) => i.group_name || 'Прочее'),
+    type: cut((i) => i.type_name),
+    section: cut((i) => sections.get(i.section_id) ?? 'Без раздела'),
+  };
+
+  const DAY = 24 * 60 * 60 * 1000;
+  const weeksBetween = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / (7 * DAY));
+  const base = (r) => ({ itemId: r.i.id, objectId: r.i.object_id, address: r.i.address, workType: r.i.type_name });
+
+  const waiting = rows.filter((r) => r.c.st === 'ks').map((r) => {
+    let since = null;
+    for (const s of H.statusesOf(r.i.id)) {
+      if (s.period_start > period.period_start) break;
+      if (s.status === 'ks' && !since) since = s.period_start;
+      if (s.status !== 'ks') since = null;
+    }
+    return { ...base(r), topay: r.c.topay, since, weeks: since ? weeksBetween(since, period.period_start) : null };
+  }).sort((a, b) => (b.weeks ?? 0) - (a.weeks ?? 0) || b.topay - a.topay);
+
+  const over = rows.filter((r) => r.c.ks > r.c.contract * 1.0001)
+    .sort((a, b) => (b.c.ks - b.c.contract) - (a.c.ks - a.c.contract))
+    .map((r) => ({ ...base(r), contract: r.c.contract, ks: r.c.ks, excessPct: (r.c.ks / r.c.contract - 1) * 100 }));
+
+  const econ = rows.filter((r) => !r.c.done && r.c.st !== 'excl')
+    .map((r) => {
+      const inwork = r.i.inwork_amount != null ? Number(r.i.inwork_amount) : r.c.contract;
+      return { r, inwork, v: inwork - r.c.forecastOpen };
+    })
+    .filter((x) => x.v > 1)
+    .sort((a, b) => b.v - a.v)
+    .map(({ r, inwork, v }) => ({ ...base(r), inwork, forecast: r.c.forecastOpen, econ: v, econPct: (v / inwork) * 100 }));
+
+  return { structure, total: money(agg(rows.map((r) => r.c), H.riskOf)), waiting, over, econ, filtered: isFiltered(f) };
 }

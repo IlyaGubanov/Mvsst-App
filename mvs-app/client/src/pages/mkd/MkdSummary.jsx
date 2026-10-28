@@ -11,16 +11,9 @@ import { Loading, ErrorBox } from '../../components/Status.jsx';
 import DynamicsChart from '../../components/DynamicsChart.jsx';
 import LineChart from '../../components/LineChart.jsx';
 import { fdm, nf, pct100, periodLabel, plural } from '../../utils/format.js';
-import { ProgressBar, RiskPill, RISK, STATUS } from './ui.jsx';
+import { MoneyBar, MONEY_SEGS, ProgressBar, RiskPill, RISK, STATUS } from './ui.jsx';
 import MkdFilters, { useMkdFilters } from './MkdFilters.jsx';
 
-// Деньги договора по стадиям (MONEY_SEGS прежнего модуля)
-const MONEY_SEGS = [
-  { k: 'paid', name: 'Оплачено', color: STATUS.paid.color },
-  { k: 'topay', name: 'КС-2 подписаны, к оплате', color: STATUS.ks.color },
-  { k: 'openForecast', name: 'В работе (прогноз КС-2)', color: STATUS.work.color },
-  { k: 'econ', name: 'Экономия / снято с договора', color: 'var(--surface-3)' },
-];
 const STATUS_FULL = { ...Object.fromEntries(Object.entries(STATUS).map(([k, s]) => [k, s.name])), ks: 'КС-2 подписаны, к оплате' };
 
 const mlnN = (v) => nf((v || 0) / 1e6, 1);              // «1 729,1» — миллионы без подписи
@@ -32,19 +25,6 @@ function Delta({ v, unit }) {
   if (Math.abs(v) < (unit === 'pp' ? 0.5 : 5e4)) return <span className="hint">без изменений</span>;
   const text = unit === 'pp' ? ppText(v) : `${v > 0 ? '+' : '−'}${mlnN(Math.abs(v))} млн`;
   return <span className={v > 0 ? 'delta-up' : 'delta-down'}>{v > 0 ? '▲' : '▼'} {text}</span>;
-}
-
-/** Полоса «куда ушли деньги»: оплачено / к оплате / в работе / экономия. scale — максимум для сравнения строк. */
-function MoneyBar({ a, scale, big }) {
-  const vals = { paid: a.paid, topay: a.topay, openForecast: a.openForecast, econ: Math.max(0, a.econ) };
-  const used = vals.paid + vals.topay + vals.openForecast + vals.econ;
-  const tot = scale || Math.max(a.contract, used) || 1;
-  const tip = MONEY_SEGS.map((s) => `${s.name}: ${mlnN(vals[s.k])} млн ₽`).concat(`Договор: ${mlnN(a.contract)} млн ₽`).join('\n');
-  return (
-    <div className={'money-bar' + (big ? ' big' : '')} style={{ width: `${Math.min(100, (used / tot) * 100)}%` }} title={tip}>
-      {MONEY_SEGS.map((s) => (vals[s.k] > 0 ? <i key={s.k} style={{ flex: `${vals[s.k]} 1 0`, background: s.color }} /> : null))}
-    </div>
-  );
 }
 
 export default function MkdSummary({ meta, period }) {

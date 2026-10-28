@@ -20,7 +20,7 @@ import { validate } from '../middleware/validate.js';
 import { editableObjectIds, responsibleByObject } from '../services/access.js';
 import { audit } from '../services/audit.js';
 import { computeMkdState } from '../services/kpi/mkd.js';
-import { computeMkdDynamics, computeMkdGantt, computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
+import { computeMkdDynamics, computeMkdFinance, computeMkdGantt, computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
 import { computeKpi, saveSnapshot } from '../services/kpi/index.js';
 import { currentPeriod, ensureEditablePeriod, listPeriods, periodOut, resolveViewPeriod } from '../services/periods.js';
 import { addPeriodAdminRoutes, startParams } from './periodAdmin.js';
@@ -126,6 +126,16 @@ router.get('/dynamics', validate(summaryQuery, 'query'), async (req, res) => {
   const { period: start, ...filters } = req.valid.query;
   const period = await resolveViewPeriod(d, start);
   res.json({ period: periodOut(period), ...(await computeMkdDynamics(d, period.period_start, filters)) });
+});
+
+// ---------------------------------------------------------------------
+// GET /finance — экран «Финансы»: структура стоимости, ждут оплаты, КС-2 выше договора, экономия
+// ---------------------------------------------------------------------
+router.get('/finance', validate(summaryQuery, 'query'), async (req, res) => {
+  const d = req.direction;
+  const { period: start, ...filters } = req.valid.query;
+  const period = await resolveViewPeriod(d, start);
+  res.json({ period: periodOut(period), ...(await computeMkdFinance(d, period.period_start, filters)) });
 });
 
 // ---------------------------------------------------------------------
