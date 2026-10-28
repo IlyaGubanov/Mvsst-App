@@ -78,6 +78,9 @@
 .mx-scale { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-2); }
 .mx-scale span { display: inline-block; width: 200px; max-width: 40vw; height: 10px; border-radius: 5px; }
 
+/* ---------- Вкладка «Динамика» (MkdDynamics.jsx): выбранный период в таблице ---------- */
+.data tbody tr.cur td { background: var(--accent-wash); font-weight: 600; }
+
 /* Примечание под позицией в карточке адреса */
 .note-line { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
 

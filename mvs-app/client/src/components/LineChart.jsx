@@ -6,6 +6,7 @@
 //  series:  [{ name, color, values: [число|null], dash? }]
 //  format:  v => '1 234'                          — подписи оси Y и всплывающих подсказок
 //  marker:  индекс точки, отмеченной вертикальной линией («срез»)
+//  max:     верх шкалы (например, 100 для процентов); без него — «круглое» число над максимумом
 //  Пустое значение (null) линия пропускает.
 // =====================================================================
 
@@ -20,12 +21,12 @@ function niceMax(max) {
   return (k <= 1 ? 1 : k <= 2 ? 2 : k <= 2.5 ? 2.5 : k <= 5 ? 5 : 10) * p;
 }
 
-export default function LineChart({ labels, series, format = (v) => String(v), marker, height = 260, title = 'График', maxLabels = 8 }) {
+export default function LineChart({ labels, series, format = (v) => String(v), marker, max, height = 260, title = 'График', maxLabels = 8 }) {
   if (!labels.length) return null;
   const H = height;
   const iw = W - PAD.l - PAD.r;
   const ih = H - PAD.t - PAD.b;
-  const top = niceMax(Math.max(0, ...series.flatMap((s) => s.values.filter((v) => v != null))));
+  const top = max ?? niceMax(Math.max(0, ...series.flatMap((s) => s.values.filter((v) => v != null))));
   const x = (i) => PAD.l + (labels.length === 1 ? iw / 2 : (i * iw) / (labels.length - 1));
   const y = (v) => PAD.t + ih - (Math.max(0, v) / top) * ih;
   const path = (values) => values.map((v, i) => [v, i]).filter(([v]) => v != null)
@@ -38,7 +39,8 @@ export default function LineChart({ labels, series, format = (v) => String(v), m
 
   return (
     <figure className="chart">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}: ${series.map((s) => `${s.name} — ${format(s.values.at(-1) ?? 0)}`).join(', ')}`}>
+      {/* В подписи — последнее заполненное значение каждой линии (у будущих точек значений нет) */}
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}: ${series.map((s) => `${s.name} — ${format(s.values.filter((v) => v != null).at(-1) ?? 0)}`).join(', ')}`}>
         {[0, 0.25, 0.5, 0.75, 1].map((k) => (
           <g key={k}>
             <line x1={PAD.l} x2={W - PAD.r} y1={y(top * k)} y2={y(top * k)} className="grid" />

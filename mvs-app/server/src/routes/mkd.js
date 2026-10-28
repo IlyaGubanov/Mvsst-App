@@ -20,7 +20,7 @@ import { validate } from '../middleware/validate.js';
 import { editableObjectIds, responsibleByObject } from '../services/access.js';
 import { audit } from '../services/audit.js';
 import { computeMkdState } from '../services/kpi/mkd.js';
-import { computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
+import { computeMkdDynamics, computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
 import { computeKpi, saveSnapshot } from '../services/kpi/index.js';
 import { currentPeriod, ensureEditablePeriod, listPeriods, periodOut, resolveViewPeriod } from '../services/periods.js';
 import { addPeriodAdminRoutes, startParams } from './periodAdmin.js';
@@ -115,6 +115,17 @@ router.get('/matrix', validate(summaryQuery, 'query'), async (req, res) => {
   const { period: start, ...filters } = req.valid.query;
   const period = await resolveViewPeriod(d, start);
   res.json({ period: periodOut(period), ...(await computeMkdMatrix(d, period.period_start, filters)) });
+});
+
+// ---------------------------------------------------------------------
+// GET /dynamics — экран «Динамика»: ряд по всем периодам, план вперёд до окончания работ,
+// готовность по разделам и группам работ (те же фильтры)
+// ---------------------------------------------------------------------
+router.get('/dynamics', validate(summaryQuery, 'query'), async (req, res) => {
+  const d = req.direction;
+  const { period: start, ...filters } = req.valid.query;
+  const period = await resolveViewPeriod(d, start);
+  res.json({ period: periodOut(period), ...(await computeMkdDynamics(d, period.period_start, filters)) });
 });
 
 // ---------------------------------------------------------------------

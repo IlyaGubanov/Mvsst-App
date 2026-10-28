@@ -40,6 +40,16 @@ export const useMkdMatrix = (period, filters = {}) => {
   });
 };
 
+/** Экран «Динамика»: ряд по всем периодам, план вперёд, готовность по разделам и группам. */
+export const useMkdDynamics = (period, filters = {}) => {
+  const qs = new URLSearchParams(Object.entries({ period, ...filters }).filter(([, v]) => v != null && v !== '')).toString();
+  return useQuery({
+    queryKey: ['mkd', 'dynamics', period ?? 'current', filters],
+    queryFn: () => api(`/mkd/dynamics${qs ? `?${qs}` : ''}`),
+    placeholderData: (prev) => prev,
+  });
+};
+
 /** Карточка адреса на период. */
 export const useMkdObject = (id, period, options = {}) => useQuery({
   queryKey: ['mkd', 'object', id, period ?? 'current'],

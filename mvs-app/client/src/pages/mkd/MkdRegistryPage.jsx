@@ -3,6 +3,7 @@
 //    (по умолчанию) «Сводка» — итоги, деньги, освоение, статусы, разделы, отставание (MkdSummary.jsx)
 //    objects        «Объекты» — реестр адресов: фильтры (лот, риск, поиск, «только мои»), сортировка
 //    matrix         «Матрица» — адрес × вид работ: статус / готовность / отклонение (MkdMatrix.jsx)
+//    dynamics       «Динамика» — S-кривая с планом вперёд, прирост, готовность по разделам и группам (MkdDynamics.jsx)
 //  Период хранится в адресе (/mkd?period=2026-10-19) — такой ссылкой можно поделиться.
 // =====================================================================
 
@@ -14,11 +15,13 @@ import { mln, nf, pct100, periodLabel, plural } from '../../utils/format.js';
 import { PeriodSelect, ProgressBar, RiskPill, RISK } from './ui.jsx';
 import MkdSummary from './MkdSummary.jsx';
 import MkdMatrix from './MkdMatrix.jsx';
+import MkdDynamics from './MkdDynamics.jsx';
 
 const TABS = [
   { id: 'summary', name: 'Сводка' },
   { id: 'objects', name: 'Объекты' },
   { id: 'matrix', name: 'Матрица' },
+  { id: 'dynamics', name: 'Динамика' },
 ];
 
 const SORTS = {
@@ -105,6 +108,7 @@ export default function MkdRegistryPage() {
 
       {tab === 'summary' && <MkdSummary meta={m} period={period} />}
       {tab === 'matrix' && <MkdMatrix meta={m} period={period} />}
+      {tab === 'dynamics' && <MkdDynamics meta={m} period={period} />}
       {tab === 'objects' && (
       // .registry: на телефоне вместо таблицы — карточки
       <div className="registry stack" style={{ gap: 28 }}>

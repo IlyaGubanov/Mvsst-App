@@ -79,6 +79,24 @@ export async function loadMkdHistory(direction) {
   return { items, periods, calcAt, riskOf };
 }
 
+/**
+ * Ряд по всем периодам для набора позиций (seriesByWeek прежнего модуля). Деньги — в рублях, проценты — 0..100.
+ * fact — выполнено физически (прогноз × готовность), plan — план по графику (прогноз × плановая готовность).
+ */
+export function periodSeries(H, items) {
+  return H.periods.map((p) => {
+    const M = H.calcAt(p);
+    const list = items.map((i) => M.get(i.id).c);
+    const x = agg(list, H.riskOf);
+    return {
+      start: p.period_start, end: p.period_end, isLegacy: Boolean(p.is_legacy),
+      pct: x.pct, planPct: x.plan, ks: x.ks, paid: x.paid, topay: x.topay,
+      fact: list.reduce((s, c) => s + (c.forecast * c.pct) / 100, 0),
+      plan: list.reduce((s, c) => s + (c.plan == null ? 0 : (c.forecast * c.plan) / 100), 0),
+    };
+  });
+}
+
 /** Деньги и готовность «агрегата» для интерфейса (проценты 0..100, суммы в рублях). */
 const money = (a) => ({
   n: a.n, contract: a.contract, ks: a.ks, paid: a.paid, topay: a.topay, inwork: a.inwork,
@@ -125,18 +143,8 @@ export async function computeMkdSummary(direction, periodStart, f) {
     return { id: s.id, name: s.name, objects: new Set(its.map((i) => i.object_id)).size, ...money(agg(its.map((i) => C.get(i.id).c), H.riskOf)) };
   }).filter(Boolean);
 
-  // Освоение нарастающим итогом по всем периодам (seriesByWeek): деньги — в рублях
-  const series = H.periods.map((p) => {
-    const M = H.calcAt(p);
-    const list = items.map((i) => M.get(i.id).c);
-    const x = agg(list, H.riskOf);
-    return {
-      start: p.period_start, end: p.period_end, isLegacy: Boolean(p.is_legacy),
-      pct: x.pct, planPct: x.plan, ks: x.ks, paid: x.paid, topay: x.topay,
-      fact: list.reduce((s, c) => s + (c.forecast * c.pct) / 100, 0),                 // выполнено физически
-      plan: list.reduce((s, c) => s + (c.plan == null ? 0 : (c.forecast * c.plan) / 100), 0), // план по графику
-    };
-  });
+  // Освоение нарастающим итогом по всем периодам
+  const series = periodSeries(H, items);
 
   // Что изменилось за период (weekEvents)
   const changes = { dPaid: 0, dKs: 0, nPaid: 0, nKs: 0, dPct: b ? a.pct - b.pct : null, events: [] };
@@ -217,4 +225,59 @@ export async function computeMkdMatrix(direction, periodStart, f) {
     return { id: o.id, address: o.address, cells, total: matrixCell(o.items.map((i) => C.get(i.id).c), H.riskOf) };
   });
   return { types: used, objects, filtered: isFiltered(f) };
+}
+
+// =====================================================================
+//  Экран «Динамика» (vDyn прежнего модуля): ряд по всем периодам + план вперёд до окончания работ,
+//  готовность по разделам и по группам работ.
+//  План вперёд — по неделям от последнего периода (+7 дней) до последней даты окончания позиций;
+//  плановая готовность берётся на пятницу недели, прогнозная стоимость — по расчёту на выбранный период.
+// =====================================================================
+
+const DAY = 24 * 60 * 60 * 1000;
+const addDaysIso = (iso, n) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);
+const planPctAt = (start, end, at) => {
+  if (!start || !end) return null;
+  if (at <= start) return 0;
+  if (at >= end) return 100;
+  return (100 * (Date.parse(`${at}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`))) / (Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`));
+};
+
+export async function computeMkdDynamics(direction, periodStart, f) {
+  const H = await loadMkdHistory(direction);
+  const period = H.periods.find((p) => p.period_start === periodStart);
+  const items = filterItems(H.items, f);
+  const series = periodSeries(H, items);
+
+  // План вперёд: на выбранный период берём прогнозную стоимость позиций, а плановую готовность — на будущие недели
+  const C = H.calcAt(period);
+  const cs = items.map((i) => ({ it: i, c: C.get(i.id).c }));
+  const lastStart = H.periods.at(-1).period_start;
+  const maxEnd = items.reduce((m, i) => (i.plan_end && i.plan_end > m ? i.plan_end : m), lastStart);
+  const future = [];
+  for (let w = addDaysIso(lastStart, 7), guard = 0; w <= addDaysIso(maxEnd, 6) && guard < 60; w = addDaysIso(w, 7), guard++) {
+    const at = addDaysIso(w, 4);
+    let plan = 0; let w0 = 0; let s0 = 0;
+    for (const { it, c } of cs) {
+      const p = planPctAt(it.plan_start, it.plan_end, at);
+      if (p != null) plan += (c.forecast * p) / 100;
+      if (c.st !== 'excl' && p != null) { w0 += c.contract; s0 += c.contract * p; }
+    }
+    future.push({ start: w, plan, planPct: w0 ? s0 / w0 : null });
+  }
+
+  // Готовность по разделам и по группам работ (не больше 8 линий каждая, как в прежнем модуле)
+  const sections = await query('SELECT id, name FROM mkd_sections ORDER BY sort_order, id');
+  const bySection = sections.map((s) => {
+    const its = items.filter((i) => i.section_id === s.id);
+    return its.length ? { id: s.id, name: s.name, values: periodSeries(H, its).map((x) => x.pct) } : null;
+  }).filter(Boolean).slice(0, 8);
+  // Группы — в порядке первого появления в справочнике видов работ (groups() прежнего модуля)
+  const groupNames = (await query('SELECT group_name FROM mkd_work_types ORDER BY sort_order, id')).map((r) => r.group_name || 'Прочее');
+  const byGroup = [...new Set(groupNames)].map((g) => {
+    const its = items.filter((i) => (i.group_name || 'Прочее') === g);
+    return its.length ? { name: g, values: periodSeries(H, its).map((x) => x.pct) } : null;
+  }).filter(Boolean).slice(0, 8);
+
+  return { series, future, maxEnd, bySection, byGroup, filtered: isFiltered(f) };
 }
