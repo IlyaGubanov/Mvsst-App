@@ -20,7 +20,7 @@ import { validate } from '../middleware/validate.js';
 import { editableObjectIds, responsibleByObject } from '../services/access.js';
 import { audit } from '../services/audit.js';
 import { computeMkdState } from '../services/kpi/mkd.js';
-import { computeMkdDynamics, computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
+import { computeMkdDynamics, computeMkdGantt, computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
 import { computeKpi, saveSnapshot } from '../services/kpi/index.js';
 import { currentPeriod, ensureEditablePeriod, listPeriods, periodOut, resolveViewPeriod } from '../services/periods.js';
 import { addPeriodAdminRoutes, startParams } from './periodAdmin.js';
@@ -126,6 +126,16 @@ router.get('/dynamics', validate(summaryQuery, 'query'), async (req, res) => {
   const { period: start, ...filters } = req.valid.query;
   const period = await resolveViewPeriod(d, start);
   res.json({ period: periodOut(period), ...(await computeMkdDynamics(d, period.period_start, filters)) });
+});
+
+// ---------------------------------------------------------------------
+// GET /gantt — экран «График работ»: сроки адресов и позиций с готовностью (psd=1 — показать ПСД)
+// ---------------------------------------------------------------------
+router.get('/gantt', validate(summaryQuery.extend({ psd: z.enum(['0', '1']).optional() }), 'query'), async (req, res) => {
+  const d = req.direction;
+  const { period: start, psd, ...filters } = req.valid.query;
+  const period = await resolveViewPeriod(d, start);
+  res.json({ period: periodOut(period), ...(await computeMkdGantt(d, period.period_start, filters, { psd: psd === '1' })) });
 });
 
 // ---------------------------------------------------------------------

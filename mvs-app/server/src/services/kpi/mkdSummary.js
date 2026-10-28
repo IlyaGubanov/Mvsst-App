@@ -25,8 +25,9 @@ function loadItems() {
   return query(
     `SELECT i.id, i.object_id, i.work_type_id, i.contract_amount, i.inwork_amount, i.approx_amount, i.plan_start, i.plan_end,
             i.responsible_person_id, o.address, o.section_id, o.curator_person_id, o.entry_person_id,
-            t.name AS type_name, t.group_name, t.code AS type_code
+            t.name AS type_name, t.group_name, t.code AS type_code, p.full_name AS responsible_name
        FROM mkd_items i JOIN mkd_objects o ON o.id = i.object_id JOIN mkd_work_types t ON t.id = i.work_type_id
+       LEFT JOIN people p ON p.id = i.responsible_person_id
       WHERE i.archived = 0 AND o.archived = 0 ORDER BY i.id`,
   );
 }
@@ -280,4 +281,52 @@ export async function computeMkdDynamics(direction, periodStart, f) {
   }).filter(Boolean).slice(0, 8);
 
   return { series, future, maxEnd, bySection, byGroup, filtered: isFiltered(f) };
+}
+
+// =====================================================================
+//  Экран «График работ» — диаграмма Ганта (vGantt прежнего модуля).
+//  Берутся позиции с датами начала и окончания; ПСД по умолчанию не показывается (opts.psd — показать).
+//  Срок адреса — от самой ранней до самой поздней позиции без ПСД (как objAggs прежнего модуля),
+//  готовность и риск — по показанным позициям. Сортировку выбирает интерфейс.
+// =====================================================================
+
+export async function computeMkdGantt(direction, periodStart, f, opts = {}) {
+  const H = await loadMkdHistory(direction);
+  const period = H.periods.find((p) => p.period_start === periodStart);
+  const C = H.calcAt(period);
+  const items = filterItems(H.items, f)
+    .filter((i) => opts.psd || i.type_code !== 'psd')
+    .filter((i) => i.plan_start && i.plan_end);
+
+  const byObject = new Map();
+  items.forEach((i) => {
+    if (!byObject.has(i.object_id)) byObject.set(i.object_id, { id: i.object_id, address: i.address, items: [] });
+    byObject.get(i.object_id).items.push(i);
+  });
+  const objects = [...byObject.values()].map((o) => {
+    const a = agg(o.items.map((i) => C.get(i.id).c), H.riskOf);
+    const nonPsd = o.items.filter((i) => i.type_code !== 'psd');
+    return {
+      id: o.id, address: o.address,
+      start: nonPsd.reduce((m, i) => (!m || i.plan_start < m ? i.plan_start : m), null),
+      end: nonPsd.reduce((m, i) => (!m || i.plan_end > m ? i.plan_end : m), null),
+      pct: a.pct, plan: a.plan, lag: a.lag, risk: a.riskLvl, overdue: a.overdue,
+      items: o.items
+        .map((i) => ({ i, c: C.get(i.id).c }))
+        .sort((x, y) => (x.i.plan_start || '').localeCompare(y.i.plan_start || ''))
+        .map(({ i, c }) => ({
+          id: i.id, workType: i.type_name, start: i.plan_start, end: i.plan_end, st: c.st, done: c.done,
+          pct: c.pct, plan: c.plan, overdue: c.overdue, responsible: i.responsible_name,
+        })),
+    };
+  });
+
+  // Шкала: с первого числа месяца самого раннего начала до первого числа месяца после самого позднего окончания
+  let min = null; let max = null;
+  items.forEach((i) => { if (!min || i.plan_start < min) min = i.plan_start; if (!max || i.plan_end > max) max = i.plan_end; });
+  const scale = min ? {
+    start: `${min.slice(0, 8)}01`,
+    end: (() => { const [y, m] = max.split('-').map(Number); return m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`; })(),
+  } : null;
+  return { planDate: period.plan_date, scale, objects, psd: Boolean(opts.psd), filtered: isFiltered(f) };
 }

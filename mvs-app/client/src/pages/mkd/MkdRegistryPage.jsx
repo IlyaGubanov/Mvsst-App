@@ -4,6 +4,7 @@
 //    objects        «Объекты» — реестр адресов: фильтры (лот, риск, поиск, «только мои»), сортировка
 //    matrix         «Матрица» — адрес × вид работ: статус / готовность / отклонение (MkdMatrix.jsx)
 //    dynamics       «Динамика» — S-кривая с планом вперёд, прирост, готовность по разделам и группам (MkdDynamics.jsx)
+//    gantt          «График работ» — диаграмма Ганта по адресам с раскрытием видов работ (MkdGantt.jsx)
 //  Период хранится в адресе (/mkd?period=2026-10-19) — такой ссылкой можно поделиться.
 // =====================================================================
 
@@ -16,12 +17,14 @@ import { PeriodSelect, ProgressBar, RiskPill, RISK } from './ui.jsx';
 import MkdSummary from './MkdSummary.jsx';
 import MkdMatrix from './MkdMatrix.jsx';
 import MkdDynamics from './MkdDynamics.jsx';
+import MkdGantt from './MkdGantt.jsx';
 
 const TABS = [
   { id: 'summary', name: 'Сводка' },
   { id: 'objects', name: 'Объекты' },
   { id: 'matrix', name: 'Матрица' },
   { id: 'dynamics', name: 'Динамика' },
+  { id: 'gantt', name: 'График работ' },
 ];
 
 const SORTS = {
@@ -109,6 +112,7 @@ export default function MkdRegistryPage() {
       {tab === 'summary' && <MkdSummary meta={m} period={period} />}
       {tab === 'matrix' && <MkdMatrix meta={m} period={period} />}
       {tab === 'dynamics' && <MkdDynamics meta={m} period={period} />}
+      {tab === 'gantt' && <MkdGantt meta={m} period={period} />}
       {tab === 'objects' && (
       // .registry: на телефоне вместо таблицы — карточки
       <div className="registry stack" style={{ gap: 28 }}>

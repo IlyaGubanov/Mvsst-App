@@ -50,6 +50,16 @@ export const useMkdDynamics = (period, filters = {}) => {
   });
 };
 
+/** Экран «График работ» (диаграмма Ганта). psd — показывать ли ПСД. */
+export const useMkdGantt = (period, filters = {}, psd = false) => {
+  const qs = new URLSearchParams(Object.entries({ period, ...filters, psd: psd ? '1' : '' }).filter(([, v]) => v != null && v !== '')).toString();
+  return useQuery({
+    queryKey: ['mkd', 'gantt', period ?? 'current', filters, psd],
+    queryFn: () => api(`/mkd/gantt${qs ? `?${qs}` : ''}`),
+    placeholderData: (prev) => prev,
+  });
+};
+
 /** Карточка адреса на период. */
 export const useMkdObject = (id, period, options = {}) => useQuery({
   queryKey: ['mkd', 'object', id, period ?? 'current'],
