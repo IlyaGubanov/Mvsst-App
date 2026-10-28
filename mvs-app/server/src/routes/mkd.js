@@ -20,7 +20,7 @@ import { validate } from '../middleware/validate.js';
 import { editableObjectIds, responsibleByObject } from '../services/access.js';
 import { audit } from '../services/audit.js';
 import { computeMkdState } from '../services/kpi/mkd.js';
-import { computeMkdSummary } from '../services/kpi/mkdSummary.js';
+import { computeMkdMatrix, computeMkdSummary } from '../services/kpi/mkdSummary.js';
 import { computeKpi, saveSnapshot } from '../services/kpi/index.js';
 import { currentPeriod, ensureEditablePeriod, listPeriods, periodOut, resolveViewPeriod } from '../services/periods.js';
 import { addPeriodAdminRoutes, startParams } from './periodAdmin.js';
@@ -105,6 +105,16 @@ router.get('/summary', validate(summaryQuery, 'query'), async (req, res) => {
   const { period: start, ...filters } = req.valid.query;
   const period = await resolveViewPeriod(d, start);
   res.json({ period: periodOut(period), ...(await computeMkdSummary(d, period.period_start, filters)) });
+});
+
+// ---------------------------------------------------------------------
+// GET /matrix — экран «Матрица»: адрес × вид работ на период (те же фильтры, что у «Сводки»)
+// ---------------------------------------------------------------------
+router.get('/matrix', validate(summaryQuery, 'query'), async (req, res) => {
+  const d = req.direction;
+  const { period: start, ...filters } = req.valid.query;
+  const period = await resolveViewPeriod(d, start);
+  res.json({ period: periodOut(period), ...(await computeMkdMatrix(d, period.period_start, filters)) });
 });
 
 // ---------------------------------------------------------------------

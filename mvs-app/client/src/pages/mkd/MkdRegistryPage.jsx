@@ -2,6 +2,7 @@
 //  «Капремонт МКД» — раздел направления на отчётный период. Вкладки (?tab=):
 //    (по умолчанию) «Сводка» — итоги, деньги, освоение, статусы, разделы, отставание (MkdSummary.jsx)
 //    objects        «Объекты» — реестр адресов: фильтры (лот, риск, поиск, «только мои»), сортировка
+//    matrix         «Матрица» — адрес × вид работ: статус / готовность / отклонение (MkdMatrix.jsx)
 //  Период хранится в адресе (/mkd?period=2026-10-19) — такой ссылкой можно поделиться.
 // =====================================================================
 
@@ -12,10 +13,12 @@ import { Loading, ErrorBox } from '../../components/Status.jsx';
 import { mln, nf, pct100, periodLabel, plural } from '../../utils/format.js';
 import { PeriodSelect, ProgressBar, RiskPill, RISK } from './ui.jsx';
 import MkdSummary from './MkdSummary.jsx';
+import MkdMatrix from './MkdMatrix.jsx';
 
 const TABS = [
   { id: 'summary', name: 'Сводка' },
   { id: 'objects', name: 'Объекты' },
+  { id: 'matrix', name: 'Матрица' },
 ];
 
 const SORTS = {
@@ -100,7 +103,9 @@ export default function MkdRegistryPage() {
         ))}
       </div>
 
-      {tab === 'summary' ? <MkdSummary meta={m} period={period} /> : (
+      {tab === 'summary' && <MkdSummary meta={m} period={period} />}
+      {tab === 'matrix' && <MkdMatrix meta={m} period={period} />}
+      {tab === 'objects' && (
       // .registry: на телефоне вместо таблицы — карточки
       <div className="registry stack" style={{ gap: 28 }}>
       <section className="tiles" aria-label="Итоги по направлению">

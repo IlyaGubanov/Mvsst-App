@@ -30,6 +30,16 @@ export const useMkdSummary = (period, filters = {}) => {
   });
 };
 
+/** Экран «Матрица»: адрес × вид работ на период, с теми же фильтрами, что «Сводка». */
+export const useMkdMatrix = (period, filters = {}) => {
+  const qs = new URLSearchParams(Object.entries({ period, ...filters }).filter(([, v]) => v != null && v !== '')).toString();
+  return useQuery({
+    queryKey: ['mkd', 'matrix', period ?? 'current', filters],
+    queryFn: () => api(`/mkd/matrix${qs ? `?${qs}` : ''}`),
+    placeholderData: (prev) => prev,
+  });
+};
+
 /** Карточка адреса на период. */
 export const useMkdObject = (id, period, options = {}) => useQuery({
   queryKey: ['mkd', 'object', id, period ?? 'current'],

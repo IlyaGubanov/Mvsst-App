@@ -2,10 +2,9 @@
 //  «Капремонт МКД» → вкладка «Сводка» (как экран «Сводка» прежнего модуля mkd.html).
 //  Блоки: готовность и итоги денег · куда ушли деньги договора · освоение нарастающим итогом ·
 //  позиции по статусу и светофор · разделы · наибольшее отставание · что изменилось за период.
-//  Фильтры (раздел, группа работ, сотрудник, поиск) хранятся в адресе страницы.
+//  Фильтры (раздел, группа работ, сотрудник, поиск) — общие с «Матрицей», см. MkdFilters.jsx.
 // =====================================================================
 
-import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useMkdSummary } from '../../api/mkd.js';
 import { Loading, ErrorBox } from '../../components/Status.jsx';
@@ -13,6 +12,7 @@ import DynamicsChart from '../../components/DynamicsChart.jsx';
 import LineChart from '../../components/LineChart.jsx';
 import { fdm, nf, pct100, periodLabel, plural } from '../../utils/format.js';
 import { ProgressBar, RiskPill, RISK, STATUS } from './ui.jsx';
+import MkdFilters, { useMkdFilters } from './MkdFilters.jsx';
 
 // Деньги договора по стадиям (MONEY_SEGS прежнего модуля)
 const MONEY_SEGS = [
@@ -48,47 +48,10 @@ function MoneyBar({ a, scale, big }) {
 }
 
 export default function MkdSummary({ meta, period }) {
-  const [params, setParams] = useSearchParams();
-  const filters = {
-    section: params.get('sec') || undefined, group: params.get('grp') || undefined,
-    person: params.get('person') || undefined, q: params.get('q') || undefined,
-  };
-  const sum = useMkdSummary(period, filters);
-
-  // Поиск применяем с небольшой задержкой, чтобы не пересчитывать на каждую букву
-  const [q, setQ] = useState(filters.q ?? '');
-  useEffect(() => {
-    const t = setTimeout(() => { if ((filters.q ?? '') !== q.trim()) setFilter('q', q.trim()); }, 400);
-    return () => clearTimeout(t);
-  }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  function setFilter(key, value) {
-    const map = { section: 'sec', group: 'grp', person: 'person', q: 'q' };
-    const next = new URLSearchParams(params);
-    if (value) next.set(map[key], value); else next.delete(map[key]);
-    setParams(next, { replace: true });
-  }
-  const filtered = Object.values(filters).some(Boolean);
-  const groups = [...new Set(meta.workTypes.map((t) => t.groupName || 'Прочее'))];
-
-  const filterBar = (
-    <section className="toolbar" aria-label="Фильтры сводки">
-      <select className="tb-select" value={filters.section ?? ''} onChange={(e) => setFilter('section', e.target.value)} aria-label="Раздел">
-        <option value="">Все разделы</option>
-        {meta.sections.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-      </select>
-      <select className="tb-select" value={filters.group ?? ''} onChange={(e) => setFilter('group', e.target.value)} aria-label="Группа работ">
-        <option value="">Все группы работ</option>
-        {groups.map((g) => <option key={g} value={g}>{g}</option>)}
-      </select>
-      <select className="tb-select" value={filters.person ?? ''} onChange={(e) => setFilter('person', e.target.value)} aria-label="Сотрудник">
-        <option value="">Все ответственные</option>
-        {meta.people.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-      </select>
-      <input className="search" type="search" placeholder="Адрес или вид работ…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Поиск" />
-      {filtered && <button type="button" className="btn" onClick={() => { setQ(''); setParams(params.get('period') ? { period: params.get('period') } : {}, { replace: true }); }}>Сбросить</button>}
-    </section>
-  );
+  const [params] = useSearchParams();
+  const filterState = useMkdFilters();
+  const sum = useMkdSummary(period, filterState.filters);
+  const filterBar = <MkdFilters meta={meta} state={filterState} />;
 
   if (sum.isPending) return <>{filterBar}<Loading text="Считаем сводку…" /></>;
   if (sum.isError) return <>{filterBar}<ErrorBox error={sum.error} onRetry={sum.refetch} /></>;

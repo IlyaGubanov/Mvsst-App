@@ -23,7 +23,7 @@ const ST_ORDER = ['paid', 'ks', 'work', 'stop', 'plan', 'excl'];
 /** Позиции (не в архиве) с адресом, разделом, группой и названием вида работ. */
 function loadItems() {
   return query(
-    `SELECT i.id, i.object_id, i.contract_amount, i.inwork_amount, i.approx_amount, i.plan_start, i.plan_end,
+    `SELECT i.id, i.object_id, i.work_type_id, i.contract_amount, i.inwork_amount, i.approx_amount, i.plan_start, i.plan_end,
             i.responsible_person_id, o.address, o.section_id, o.curator_person_id, o.entry_person_id,
             t.name AS type_name, t.group_name, t.code AS type_code
        FROM mkd_items i JOIN mkd_objects o ON o.id = i.object_id JOIN mkd_work_types t ON t.id = i.work_type_id
@@ -174,4 +174,47 @@ export async function computeMkdSummary(direction, periodStart, f) {
     docContract: source?.docContract ?? null, // итог договоров в исходной таблице (до исключений) — для сверки
     filtered: isFiltered(f),
   };
+}
+
+// =====================================================================
+//  Экран «Матрица» — адрес × вид работ (vMatrix прежнего модуля).
+//  Ячейка — все позиции адреса этого вида работ (обычно одна). Статус ячейки из нескольких позиций:
+//  все оплачены — «Оплачено»; хоть одна в работе или приостановлена — «В работе»; иначе — статус первой.
+//  Строки — адреса в порядке позиций, столбцы — виды работ из справочника, которые есть среди позиций.
+// =====================================================================
+
+/** Ячейка матрицы по набору расчётов позиций. */
+function matrixCell(cs, riskOf) {
+  const a = agg(cs, riskOf);
+  const st = cs.length === 1 ? cs[0].st
+    : cs.every((c) => c.st === 'paid') ? 'paid'
+      : cs.some((c) => c.st === 'work' || c.st === 'stop') ? 'work' : cs[0].st;
+  return {
+    st, n: cs.length, pct: a.pct, plan: a.plan, lag: a.lag, risk: a.riskLvl,
+    contract: a.contract, ks: a.ks, paid: a.paid, overdue: cs.some((c) => c.overdue),
+  };
+}
+
+export async function computeMkdMatrix(direction, periodStart, f) {
+  const H = await loadMkdHistory(direction);
+  const period = H.periods.find((p) => p.period_start === periodStart);
+  const C = H.calcAt(period);
+  const items = filterItems(H.items, f);
+  const types = await query('SELECT id, code, name, full_name AS fullName FROM mkd_work_types ORDER BY sort_order, id');
+  const used = types.filter((t) => items.some((i) => i.work_type_id === t.id));
+
+  const byObject = new Map();
+  items.forEach((i) => {
+    if (!byObject.has(i.object_id)) byObject.set(i.object_id, { id: i.object_id, address: i.address, items: [] });
+    byObject.get(i.object_id).items.push(i);
+  });
+  const objects = [...byObject.values()].map((o) => {
+    const cells = {};
+    for (const t of used) {
+      const cs = o.items.filter((i) => i.work_type_id === t.id).map((i) => C.get(i.id).c);
+      if (cs.length) cells[t.id] = matrixCell(cs, H.riskOf);
+    }
+    return { id: o.id, address: o.address, cells, total: matrixCell(o.items.map((i) => C.get(i.id).c), H.riskOf) };
+  });
+  return { types: used, objects, filtered: isFiltered(f) };
 }
