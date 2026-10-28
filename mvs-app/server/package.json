@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
+    "dev": "node --watch-path=src src/index.js",
     "check-db": "node src/scripts/check-db.js",
     "migrate": "node src/scripts/migrate.js",
     "create-admin": "node src/scripts/create-admin.js",

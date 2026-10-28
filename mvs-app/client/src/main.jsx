@@ -10,6 +10,7 @@ import './styles/auth.css';
 import './styles/overview.css';
 import './styles/mkd.css';
 import './styles/networks.css';
+import './styles/schools.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

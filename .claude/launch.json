@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["--watch-path=mvs-app/server/src", "mvs-app/server/src/index.js"],
+      "port": 3000
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["mvs-app/client/node_modules/vite/bin/vite.js", "mvs-app/client", "--config", "mvs-app/client/vite.config.js", "--port", "5173", "--strictPort"],
+      "port": 5173
+    }
+  ]
+}

@@ -24,6 +24,7 @@ import directionsRouter from './routes/directions.js';
 import overviewRouter from './routes/overview.js';
 import mkdRouter from './routes/mkd.js';
 import networksRouter from './routes/networks.js';
+import schoolsRouter from './routes/schools.js';
 import { useDirection } from './middleware/access.js';
 import usersRouter from './routes/users.js';
 import assignmentsRouter from './routes/assignments.js';
@@ -91,6 +92,7 @@ export function createApp() {
   app.use('/api/directions', requireLogin, directionsRouter);             // направления: KPI, история, «мои объекты»
   app.use('/api/mkd', requireLogin, useDirection('mkd'), mkdRouter);      // «Капремонт МКД»
   app.use('/api/networks', requireLogin, useDirection('networks'), networksRouter); // «Сети, коллекторы, водные объекты»
+  app.use('/api/schools', requireLogin, useDirection('schools'), schoolsRouter);    // «Капремонт школ»
   app.use('/api/users', requireLogin, requireRole('admin'), usersRouter); // пользователи — только администратор
   app.use('/api/assignments', requireLogin, requireRole('admin'), assignmentsRouter); // ответственные за объекты
   app.use('/api', apiNotFound);                                           // неизвестный адрес API → 404 в JSON

@@ -27,6 +27,9 @@ import MkdInputPage from './pages/mkd/MkdInputPage.jsx';
 import NetRegistryPage from './pages/networks/NetRegistryPage.jsx';
 import NetObjectPage from './pages/networks/NetObjectPage.jsx';
 import NetInputPage from './pages/networks/NetInputPage.jsx';
+import SchoolsPage from './pages/schools/SchoolsPage.jsx';
+import SchoolPage from './pages/schools/SchoolPage.jsx';
+import SchoolInputPage from './pages/schools/SchoolInputPage.jsx';
 
 // Кэш запросов к серверу: данные переиспользуются между страницами и обновляются при возврате на вкладку
 const queryClient = new QueryClient({
@@ -57,6 +60,9 @@ export default function App() {
                 <Route path="networks" element={<DirectionGate code="networks"><NetRegistryPage /></DirectionGate>} />
                 <Route path="networks/input" element={<DirectionGate code="networks"><NetInputPage /></DirectionGate>} />
                 <Route path="networks/:objectId" element={<DirectionGate code="networks"><NetObjectPage /></DirectionGate>} />
+                <Route path="schools" element={<DirectionGate code="schools"><SchoolsPage /></DirectionGate>} />
+                <Route path="schools/input" element={<DirectionGate code="schools"><SchoolInputPage /></DirectionGate>} />
+                <Route path="schools/:objectId" element={<DirectionGate code="schools"><SchoolPage /></DirectionGate>} />
                 <Route path=":direction" element={<DirectionPage />} />
                 <Route path=":direction/:objectId" element={<DirectionPage />} />
                 <Route path="*" element={<NotFoundPage />} />
