@@ -394,3 +394,46 @@ export async function computeMkdFinance(direction, periodStart, f) {
 
   return { structure, total: money(agg(rows.map((r) => r.c), H.riskOf)), waiting, over, econ, filtered: isFiltered(f) };
 }
+
+// =====================================================================
+//  Экран «Ответственные» — нагрузка и дисциплина (vPeople прежнего модуля).
+//  Куратор и ответственный за ввод — на уровне адреса; ответственный по работам — на уровне позиции.
+//  «Заполнение периода»: позиции адресов сотрудника, которым нужно обновление (к прошлому периоду
+//  не «Оплачено» и не «Исключено»), и сколько из них внесено именно за выбранный период.
+// =====================================================================
+
+export async function computeMkdPeople(direction, periodStart, f) {
+  const H = await loadMkdHistory(direction);
+  const idx = H.periods.findIndex((p) => p.period_start === periodStart);
+  const period = H.periods[idx];
+  const prev = idx > 0 ? H.periods[idx - 1] : null;
+  const C = H.calcAt(period);
+  const P = prev ? H.calcAt(prev) : null;
+  const items = filterItems(H.items, f);
+  const people = await query('SELECT id, full_name AS name, position FROM people ORDER BY id');
+
+  // Нужно ли обновить позицию в этом периоде (needsUpdate прежнего модуля)
+  const needsUpdate = (i) => {
+    const s = P ? P.get(i.id).s : null;
+    const st = s ? s.status : (C.get(i.id).s?.status || 'plan');
+    return !(st === 'paid' || st === 'excl');
+  };
+  const enteredNow = (i) => H.statusesOf(i.id).some((s) => s.period_start === period.period_start);
+
+  const rows = people.map((p) => {
+    const nCur = new Set(items.filter((i) => i.curator_person_id === p.id).map((i) => i.object_id)).size;
+    const nEnt = new Set(items.filter((i) => i.entry_person_id === p.id).map((i) => i.object_id)).size;
+    const resp = items.filter((i) => i.responsible_person_id === p.id).map((i) => C.get(i.id).c);
+    const a = agg(resp, H.riskOf);
+    const open = resp.filter((c) => !c.done && c.st !== 'excl');
+    const need = items.filter((i) => i.entry_person_id === p.id && needsUpdate(i));
+    return {
+      id: p.id, name: p.name, role: p.position, nCur, nEnt,
+      n: a.n, open: open.length, inwork: a.inwork, pct: a.pct, plan: a.plan, lag: a.lag, risk: a.riskLvl,
+      crit: open.filter((c) => c.risk === 'crit').length, over: open.filter((c) => c.overdue).length,
+      need: need.length, upd: need.filter(enteredNow).length,
+    };
+  }).filter((r) => r.nCur || r.nEnt || r.n);
+
+  return { rows, filtered: isFiltered(f) };
+}

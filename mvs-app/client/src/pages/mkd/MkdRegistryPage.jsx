@@ -6,6 +6,7 @@
 //    dynamics       «Динамика» — S-кривая с планом вперёд, прирост, готовность по разделам и группам (MkdDynamics.jsx)
 //    gantt          «График работ» — диаграмма Ганта по адресам с раскрытием видов работ (MkdGantt.jsx)
 //    finance        «Финансы» — структура стоимости, ждут оплаты, КС-2 выше договора, экономия (MkdFinance.jsx)
+//    people         «Ответственные» — нагрузка и заполнение периода по сотрудникам (MkdPeople.jsx)
 //  Период хранится в адресе (/mkd?period=2026-10-19) — такой ссылкой можно поделиться.
 // =====================================================================
 
@@ -20,6 +21,7 @@ import MkdMatrix from './MkdMatrix.jsx';
 import MkdDynamics from './MkdDynamics.jsx';
 import MkdGantt from './MkdGantt.jsx';
 import MkdFinance from './MkdFinance.jsx';
+import MkdPeople from './MkdPeople.jsx';
 
 const TABS = [
   { id: 'summary', name: 'Сводка' },
@@ -28,6 +30,7 @@ const TABS = [
   { id: 'dynamics', name: 'Динамика' },
   { id: 'gantt', name: 'График работ' },
   { id: 'finance', name: 'Финансы' },
+  { id: 'people', name: 'Ответственные' },
 ];
 
 const SORTS = {
@@ -117,6 +120,7 @@ export default function MkdRegistryPage() {
       {tab === 'dynamics' && <MkdDynamics meta={m} period={period} />}
       {tab === 'gantt' && <MkdGantt meta={m} period={period} />}
       {tab === 'finance' && <MkdFinance meta={m} period={period} />}
+      {tab === 'people' && <MkdPeople meta={m} period={period} />}
       {tab === 'objects' && (
       // .registry: на телефоне вместо таблицы — карточки
       <div className="registry stack" style={{ gap: 28 }}>

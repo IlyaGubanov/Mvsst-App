@@ -70,6 +70,16 @@ export const useMkdFinance = (period, filters = {}) => {
   });
 };
 
+/** Экран «Ответственные»: нагрузка сотрудников и заполнение за период. */
+export const useMkdPeople = (period, filters = {}) => {
+  const qs = new URLSearchParams(Object.entries({ period, ...filters }).filter(([, v]) => v != null && v !== '')).toString();
+  return useQuery({
+    queryKey: ['mkd', 'people', period ?? 'current', filters],
+    queryFn: () => api(`/mkd/people${qs ? `?${qs}` : ''}`),
+    placeholderData: (prev) => prev,
+  });
+};
+
 /** Карточка адреса на период. */
 export const useMkdObject = (id, period, options = {}) => useQuery({
   queryKey: ['mkd', 'object', id, period ?? 'current'],
