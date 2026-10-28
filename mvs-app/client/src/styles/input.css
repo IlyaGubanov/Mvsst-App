@@ -1,0 +1,42 @@
+/* =====================================================================
+   input.css — экраны ввода данных (общие для МКД, Сетей, Школ, Благоустройства):
+   список «моих объектов» слева, блоки с полями справа, предупреждения,
+   панель «Сохранить / Отменить» внизу экрана.
+   ===================================================================== */
+
+/* Две колонки: список объектов и данные выбранного объекта; на узком экране — одна */
+.input-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { .input-layout { grid-template-columns: 1fr; } }
+
+/* Список «мои объекты»; на телефоне вместо него — выпадающий список (.addr-picker) */
+.addr-list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.addr-list button { display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 10px 12px; border: 0; border-top: 1px solid var(--line); background: none; }
+.addr-list button:first-child { border-top: 0; }
+.addr-list button[aria-current="true"] { background: var(--accent-wash); }
+.addr-list button small { color: var(--muted); font-size: 12px; }
+.addr-list .dirty { color: var(--warn-ink); font-weight: 600; }
+.addr-picker { display: none; }
+/* Высоту списка задаёт общее правило поля (.f select, 40px в controls.css) */
+@media (max-width: 900px) { .addr-list { display: none; } .addr-picker { display: block; } .addr-picker select { width: 100%; } }
+
+/* Блоки с полями; изменённый блок обведён */
+.items { display: flex; flex-direction: column; gap: 10px; }
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.item.changed { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.item-h { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.item-h b { font-size: 14px; }
+.item-h .sub { font-size: 12px; color: var(--muted); }
+
+/* Предупреждения (не мешают сохранить) */
+.warns { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--warn-wash); color: var(--warn-ink); font-size: 12.5px; list-style: none; }
+
+/* Панель сохранения — «прилипает» к низу экрана */
+.savebar {
+  position: sticky; bottom: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 12px var(--gutter); margin-inline: calc(-1 * var(--gutter)); background: var(--surface); border-top: 1px solid var(--line-2);
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+.savebar .msg { font-size: 13px; color: var(--ink-2); }
+.savebar .msg.ok { color: var(--good-ink); }
+.savebar .msg.err { color: var(--crit-ink); }
+.savebar .btns { display: flex; gap: 8px; }

@@ -58,7 +58,7 @@ export default function MkdRegistryPage() {
   const openObject = (o) => navigate(`/mkd/${o.id}${period ? `?period=${period}` : ''}`);
 
   return (
-    <div className="page sect registry">
+    <div className="page sect mkd registry">
       <nav className="crumbs" aria-label="Навигация"><Link to="/">Сводка</Link><span>/</span><span>Капремонт МКД</span></nav>
 
       <div className="head">

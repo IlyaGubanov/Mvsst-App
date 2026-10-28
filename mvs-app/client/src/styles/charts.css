@@ -1,0 +1,30 @@
+/* =====================================================================
+   charts.css — графики на SVG (components/DynamicsChart.jsx, components/StackedBars.jsx)
+   и подписи-легенды под ними. Цвет факта — цвет направления (--tc), план — пунктир.
+   ===================================================================== */
+
+.chart { margin: 0; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .ax { fill: var(--muted); font-size: 11px; font-family: var(--font); }
+
+/* Линии «факт против плана» и точки отчётов */
+.chart .plan-line { fill: none; stroke: var(--plan); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .7; }
+.chart .fact-line { fill: none; stroke: var(--tc); stroke-width: 2.5; }
+.chart .pt { fill: var(--tc); stroke: var(--surface); stroke-width: 1.5; }
+.chart .pt.empty { fill: var(--surface); stroke: var(--tc); }
+.chart .marker { stroke: var(--crit); stroke-width: 1.5; stroke-dasharray: 3 3; }   /* отметка «сегодня» */
+
+/* Столбики из двух частей (StackedBars) */
+.chart .bar-a { fill: var(--tc); }
+.chart .bar-b { fill: var(--good); opacity: .75; }
+
+/* Легенда */
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend i { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid var(--tc); }
+.chart-legend i.lp { border-top: 1.5px dashed var(--plan); }
+.chart-legend i.le { width: 8px; height: 8px; border: 1.5px solid var(--tc); border-radius: 50%; }
+.chart-legend i.sq { width: 12px; height: 10px; border: 0; border-radius: 2px; }
+.chart-legend i.sq.a { background: var(--tc); }
+.chart-legend i.sq.b { background: var(--good); opacity: .75; }

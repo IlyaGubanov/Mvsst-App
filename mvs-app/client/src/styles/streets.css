@@ -1,4 +1,4 @@
-/* streets.css — раздел «Благоустройство улиц» (вкладки .subtabs — из schools.css) */
+/* streets.css — только то, что есть лишь в разделе «Благоустройство улиц» (вкладки .subtabs — в controls.css) */
 
 .sect.st { --tc: var(--d-streets); }
 

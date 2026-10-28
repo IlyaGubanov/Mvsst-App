@@ -71,7 +71,7 @@ export default function MkdInputPage() {
 
   if (!myObjects.length) {
     return (
-      <div className="page sect">
+      <div className="page sect mkd">
         <nav className="crumbs"><Link to="/">Сводка</Link><span>/</span><Link to="/mkd">Капремонт МКД</Link><span>/</span><span>Ввод данных</span></nav>
         <div className="error-box"><h2>Нет адресов для ввода</h2><p>Вы пока не назначены ответственным ни за один адрес МКД. Обратитесь к администратору.</p></div>
       </div>
@@ -116,7 +116,7 @@ export default function MkdInputPage() {
   const current = myObjects.find((o) => o.id === objectId);
 
   return (
-    <div className="page sect">
+    <div className="page sect mkd">
       <nav className="crumbs" aria-label="Навигация">
         <Link to="/">Сводка</Link><span>/</span><Link to="/mkd">Капремонт МКД</Link><span>/</span><span>Ввод данных</span>
       </nav>

@@ -1,0 +1,65 @@
+/* =====================================================================
+   controls.css — элементы управления: выбор периода и даты, поиск, флажки,
+   «чипы»-фильтры, вкладки внутри раздела, поля ввода и их сетки.
+   ===================================================================== */
+
+/* Выпадающие списки и поиск в панелях */
+.period-select { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.period-select select, .tb-select, .search {
+  min-height: 36px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-2);
+  background: var(--surface); color: var(--ink);
+}
+.search { min-width: 220px; flex: 1; max-width: 360px; }
+.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.check input { width: 16px; height: 16px; }
+
+/* Выбор даты «Срез на» */
+.date-pick { display: flex; align-items: center; gap: 6px; }
+.date-pick input {
+  min-height: 36px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line-2);
+  background: var(--surface); color: var(--ink);
+}
+
+/* «Чипы» — кнопки-фильтры (статусы, разделы) */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; min-height: 30px;
+  border: 1px solid var(--line-2); background: var(--surface); font-size: 12.5px; color: var(--ink-2);
+}
+.chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--tc); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+/* Вкладки внутри раздела (Обзор / Закупки / …), подчёркивание — цветом направления */
+.subtabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.subtabs::-webkit-scrollbar { display: none; }
+.subtabs button {
+  position: relative; padding: 10px 14px; border: 0; background: none; color: var(--ink-2); font-weight: 500; white-space: nowrap;
+}
+.subtabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+.subtabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--tc); }
+.subtabs .cnt { margin-left: 6px; padding: 0 6px; border-radius: 10px; background: var(--crit-wash); color: var(--crit-ink); font-size: 11.5px; }
+
+/* Строка пояснений к цветам и значкам */
+.legend-row { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); }
+
+/* Поле ввода: подпись, поле, ошибка, «было» */
+.f { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.f label { font-size: 12px; color: var(--ink-2); }
+.f input, .f select, .f textarea {
+  width: 100%; min-height: 40px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line-2);
+  background: var(--surface); color: var(--ink); font-size: 15px; font-variant-numeric: tabular-nums;
+}
+.f textarea { min-height: 40px; resize: vertical; font-size: 14px; }
+.f input:disabled { background: var(--surface-2); color: var(--muted); }
+.f input:focus, .f select:focus, .f textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+.f input[aria-invalid="true"] { border-color: var(--crit); }
+.f .err { font-size: 12px; color: var(--crit-ink); }
+.f .was { font-size: 11.5px; color: var(--muted); }
+
+/* Сетки полей: 4 поля позиции МКД; .res — 3 поля (деньги и ресурсы Сетей); .res4 — 4 поля (ресурсы школ и благоустройства) */
+.fields { display: grid; grid-template-columns: 1.3fr .7fr 1fr 1fr; gap: 10px; }
+@media (max-width: 760px) { .fields { grid-template-columns: 1fr 1fr; } }
+.fields.res { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 560px) { .fields.res { grid-template-columns: 1fr 1fr; } .fields.res .f:first-child { grid-column: 1 / -1; } }
+.fields.res4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 620px) { .fields.res4 { grid-template-columns: 1fr 1fr; } }

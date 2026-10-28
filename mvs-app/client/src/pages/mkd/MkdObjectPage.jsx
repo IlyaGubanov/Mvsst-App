@@ -28,7 +28,7 @@ export default function MkdObjectPage() {
   const backLink = `/mkd${period ? `?period=${period}` : ''}`;
 
   return (
-    <div className="page sect">
+    <div className="page sect mkd">
       <nav className="crumbs" aria-label="Навигация">
         <Link to="/">Сводка</Link><span>/</span><Link to={backLink}>Капремонт МКД</Link><span>/</span><span>{o.address}</span>
       </nav>

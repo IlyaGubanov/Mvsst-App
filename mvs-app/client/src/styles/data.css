@@ -1,0 +1,70 @@
+/* =====================================================================
+   data.css — показ данных: плитки итогов, полосы готовности, таблицы,
+   карточки объектов на телефоне, история изменений, карточки-фильтры разделов.
+   ===================================================================== */
+
+/* Плитки итогов (6 в ряд → 3 → 2 на телефоне) */
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.tile { background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tile .l { font-size: 12px; color: var(--ink-2); }
+.tile .v { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tile .s { font-size: 11.5px; color: var(--muted); }
+.tile .v.crit { color: var(--crit-ink); }
+@media (max-width: 1060px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tile .v { font-size: 18px; } }
+
+/* Полоса «факт против плана»: заливка — факт (цвет направления), светлая зона и риска — план */
+.mini-bar { position: relative; height: 8px; border-radius: 4px; background: var(--track); min-width: 80px; }
+.mini-bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--tc); }
+.mini-bar .pz { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--surface-3); }
+.mini-bar .pm { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--plan); border-radius: 1px; }
+
+/* Таблицы */
+.tbl-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow-x: auto; }
+.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data th, .data td { padding: 9px 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.data thead th { border-top: 0; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; background: var(--surface); position: sticky; top: 0; }
+.data td.num, .data th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.data tbody tr.link { cursor: pointer; }
+.data tbody tr.link:hover { background: var(--surface-2); }
+.data .addr { font-weight: 500; }
+.data .sub { font-size: 12px; color: var(--muted); }
+.data .mine { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 5px; background: var(--accent-wash); color: var(--accent-ink); font-size: 11px; font-weight: 500; }
+.data .prog { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+.data .prog span { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.data tfoot td { font-weight: 600; background: var(--surface-2); }
+.empty-row { padding: 24px; text-align: center; color: var(--muted); }
+/* Второстепенные столбцы прячем на узких экранах (данные остаются в истории и на экране ввода) */
+@media (max-width: 1000px) { .hide-md { display: none; } }
+@media (max-width: 760px) { .hide-sm { display: none; } .hist th:nth-child(n+4), .hist td:nth-child(n+4) { display: none; } }
+
+/* Реестр на телефоне — карточки вместо таблицы (страница с классом .registry) */
+.cards { display: none; flex-direction: column; gap: 10px; }
+.ocard { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+.ocard .top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.ocard .addr { font-weight: 600; }
+.ocard .meta { font-size: 12px; color: var(--muted); }
+.ocard .nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 12px; color: var(--ink-2); }
+.ocard .nums b { display: block; color: var(--ink); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .registry .tbl-wrap { display: none; } .registry .cards { display: flex; } }
+
+/* История значений: кнопка «история · N» и раскрывающаяся строка-таблица */
+.hist-btn { border: 0; background: none; color: var(--accent-ink); padding: 0; font-size: 12px; }
+.hist td { background: var(--surface-2); }
+.hist table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.hist th, .hist td { padding: 4px 8px; text-align: left; border-top: 1px solid var(--line); }
+.hist th { color: var(--muted); font-weight: 500; }
+
+/* Карточки-фильтры разделов (Сети) и групп работ (Школы) */
+.secs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 1060px) { .secs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .secs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.sec-card {
+  display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 12px 14px; border-radius: var(--r);
+  background: var(--surface); border: 1px solid var(--line); color: inherit; min-width: 0;
+}
+.sec-card:hover { border-color: var(--line-2); }
+.sec-card[aria-pressed="true"] { border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc) inset; }
+.sec-card b { font-size: 14px; }
+.sec-card .nums { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.sec-card .nums .bad { color: var(--crit-ink); font-weight: 600; }

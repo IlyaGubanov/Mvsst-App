@@ -1,43 +1,16 @@
-/* networks.css — раздел «Сети»: цвет направления, карточки разделов, график динамики */
+/* networks.css — только то, что есть лишь в разделе «Сети».
+   Карточки разделов (.secs) — в data.css, графики — в charts.css. */
 
 .sect.net { --tc: var(--d-networks); }
 
-/* Итоги по разделам — карточки-фильтры */
-.secs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 1060px) { .secs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .secs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.sec-card {
-  display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 12px 14px; border-radius: var(--r);
-  background: var(--surface); border: 1px solid var(--line); color: inherit; min-width: 0;
-}
-.sec-card:hover { border-color: var(--line-2); }
-.sec-card[aria-pressed="true"] { border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc) inset; }
-.sec-card b { font-size: 14px; }
-.sec-card .nums { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--ink-2); }
-.sec-card .nums .bad { color: var(--crit-ink); font-weight: 600; }
-
-/* Документы объекта */
+/* Документы объекта: ПСД, РД, МГЭ… («+» — зелёный, «нет» — красный) */
 .docs { display: flex; flex-wrap: wrap; gap: 6px; }
 .doc { display: inline-flex; gap: 6px; align-items: center; padding: 3px 9px; border-radius: 6px; background: var(--surface-2); font-size: 12px; }
 .doc b { font-weight: 600; }
 .doc.ok { background: var(--good-wash); color: var(--good-ink); }
 .doc.no { background: var(--crit-wash); color: var(--crit-ink); }
+/* Метка «пример»: значение подставлено при переносе из Excel */
 .ex-mark { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 4px; background: var(--warn-wash); color: var(--warn-ink); font-size: 11px; }
-
-/* График динамики */
-.chart { margin: 0; }
-.chart svg { width: 100%; height: auto; display: block; }
-.chart .grid { stroke: var(--line); stroke-width: 1; }
-.chart .ax { fill: var(--muted); font-size: 11px; font-family: var(--font); }
-.chart .plan-line { fill: none; stroke: var(--plan); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .7; }
-.chart .fact-line { fill: none; stroke: var(--tc); stroke-width: 2.5; }
-.chart .pt { fill: var(--tc); stroke: var(--surface); stroke-width: 1.5; }
-.chart .pt.empty { fill: var(--surface); stroke: var(--tc); }
-.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); margin-top: 6px; }
-.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.chart-legend i { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid var(--tc); }
-.chart-legend i.lp { border-top: 1.5px dashed var(--plan); }
-.chart-legend i.le { width: 8px; height: 8px; border: 1.5px solid var(--tc); border-radius: 50%; }
 
 /* На телефоне в таблицах карточки объекта: уже полоса выполнения и меньше отступы */
 @media (max-width: 560px) {
@@ -52,5 +25,3 @@
 .line-row .what b { display: block; font-size: 13.5px; }
 .line-row .what span { font-size: 12px; color: var(--muted); }
 @media (max-width: 560px) { .line-row { grid-template-columns: 1fr; } }
-.fields.res { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (max-width: 560px) { .fields.res { grid-template-columns: 1fr 1fr; } .fields.res .f:first-child { grid-column: 1 / -1; } }

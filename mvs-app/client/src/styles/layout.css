@@ -1,0 +1,50 @@
+/* =====================================================================
+   layout.css — каркас страниц, общий для всех разделов:
+   ширина страницы, заголовок, «хлебные крошки», панели, блоки-карточки, сетки в 2 колонки.
+   ===================================================================== */
+
+/* Страница: ширина, поля, расстояние между блоками */
+.page {
+  max-width: 1240px; margin: 0 auto; padding-block: 24px 48px;
+  padding-left: var(--gutter); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px;
+}
+
+/* Заголовок страницы: название слева, кнопки и выбор даты справа */
+.head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.head h1 { font-size: 26px; letter-spacing: -.015em; }
+.lead { margin: 6px 0 0; color: var(--ink-2); font-size: 15px; max-width: 72ch; }
+.stamp { color: var(--muted); font-size: 12.5px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+@media (max-width: 620px) { .stamp { text-align: left; align-items: flex-start; } .head h1 { font-size: 22px; } }
+
+/* «Хлебные крошки»: Сводка / Раздел / Объект */
+.crumbs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.crumbs a { color: var(--ink-2); text-decoration: none; }
+.crumbs a:hover { color: var(--ink); text-decoration: underline; }
+
+/* Панель инструментов: фильтры, поиск, кнопки в одну строку с переносом */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.toolbar .grow { flex: 1; }
+
+/* Заголовок блока внутри страницы и подсказки серым */
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.sec-h h2 { font-size: 17px; }
+.hint { color: var(--muted); font-size: 12.5px; }
+
+/* Блоки и сетки */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
+.two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+/* Сведения об объекте: «подпись — значение» сеткой */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; font-size: 13px; }
+/* Подпись поля — только ПЕРВЫЙ span в ячейке (метки «пример» и документы внутри не задеваем) */
+.info-grid > div > span:first-child { display: block; font-size: 12px; color: var(--muted); }
+
+/* Сообщения на странице */
+.notice { padding: 10px 14px; border-radius: 10px; background: var(--accent-wash); color: var(--accent-ink); font-size: 13px; }
+.notice.warn { background: var(--warn-wash); color: var(--warn-ink); }
+.empty { padding: 18px 6px; color: var(--muted); }
