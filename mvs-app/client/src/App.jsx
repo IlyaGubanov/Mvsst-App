@@ -30,6 +30,9 @@ import NetInputPage from './pages/networks/NetInputPage.jsx';
 import SchoolsPage from './pages/schools/SchoolsPage.jsx';
 import SchoolPage from './pages/schools/SchoolPage.jsx';
 import SchoolInputPage from './pages/schools/SchoolInputPage.jsx';
+import StreetsPage from './pages/streets/StreetsPage.jsx';
+import StreetObjectPage from './pages/streets/StreetObjectPage.jsx';
+import StreetsInputPage from './pages/streets/StreetsInputPage.jsx';
 
 // Кэш запросов к серверу: данные переиспользуются между страницами и обновляются при возврате на вкладку
 const queryClient = new QueryClient({
@@ -63,6 +66,9 @@ export default function App() {
                 <Route path="schools" element={<DirectionGate code="schools"><SchoolsPage /></DirectionGate>} />
                 <Route path="schools/input" element={<DirectionGate code="schools"><SchoolInputPage /></DirectionGate>} />
                 <Route path="schools/:objectId" element={<DirectionGate code="schools"><SchoolPage /></DirectionGate>} />
+                <Route path="streets" element={<DirectionGate code="streets"><StreetsPage /></DirectionGate>} />
+                <Route path="streets/input" element={<DirectionGate code="streets"><StreetsInputPage /></DirectionGate>} />
+                <Route path="streets/:objectId" element={<DirectionGate code="streets"><StreetObjectPage /></DirectionGate>} />
                 <Route path=":direction" element={<DirectionPage />} />
                 <Route path=":direction/:objectId" element={<DirectionPage />} />
                 <Route path="*" element={<NotFoundPage />} />

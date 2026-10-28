@@ -11,6 +11,7 @@ import './styles/overview.css';
 import './styles/mkd.css';
 import './styles/networks.css';
 import './styles/schools.css';
+import './styles/streets.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

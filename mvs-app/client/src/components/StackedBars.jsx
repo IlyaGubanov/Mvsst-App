@@ -30,7 +30,7 @@ export default function StackedBars({ points, names = ['здание', 'благ
         {points.map((p, i) => (
           <g key={`${p.label}-${i}`}>
             <rect x={PAD.l + i * bw + bw * 0.15} width={bw * 0.7} y={y(p.a)} height={Math.max(0, y(0) - y(p.a))} className="bar-a">
-              <title>{`${p.label}: ${names[0]} ${p.a}, ${names[1]} ${p.b} ${unit}`}</title>
+              <title>{`${p.label}: ${names[0]} ${p.a}${names[1] ? `, ${names[1]} ${p.b}` : ''} ${unit}`}</title>
             </rect>
             {p.b > 0 && <rect x={PAD.l + i * bw + bw * 0.15} width={bw * 0.7} y={y(p.a + p.b)} height={Math.max(0, y(p.a) - y(p.a + p.b))} className="bar-b" />}
             {/* Подпись — каждые step столбиков и у последнего; соседнюю с последней пропускаем, чтобы не наезжали */}
@@ -40,7 +40,8 @@ export default function StackedBars({ points, names = ['здание', 'благ
       </svg>
       <figcaption className="chart-legend">
         <span><i className="sq a" />{names[0]}</span>
-        <span><i className="sq b" />{names[1]}</span>
+        {/* Вторая часть столбика — только если она где-то есть (у замечаний её нет) */}
+        {names[1] && points.some((p) => p.b > 0) && <span><i className="sq b" />{names[1]}</span>}
       </figcaption>
     </figure>
   );

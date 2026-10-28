@@ -10,7 +10,7 @@
 import { query, queryOne } from '../../db.js';
 import { plural } from './common.js';
 
-const DONE_STATUSES = ['Работы завершены', 'Сдан ЦККБ'];
+export const DONE_STATUSES = ['Работы завершены', 'Сдан ЦККБ'];
 const num = (x) => (x == null ? '—' : Number(x).toLocaleString('ru-RU', { maximumFractionDigits: 2 }));
 const fdate = (iso) => (iso ? iso.split('-').reverse().join('.') : '—');
 
@@ -27,7 +27,7 @@ const SHORT_NAMES = [
   ['Подъезд к заводу (в границах Ступинской улицы)', 'Подъезд к заводу · Ступинская'],
   ['Подъездная дорога к «ул. Кубанская д. 27»', 'Кубанская, 27 · подъезд'],
 ];
-const compactName = (name) => SHORT_NAMES.reduce((s, [from, to]) => s.replace(from, to), name);
+export const compactName = (name) => SHORT_NAMES.reduce((s, [from, to]) => s.replace(from, to), name);
 
 const lastReport = (program, date) => queryOne(
   'SELECT id, report_date FROM st_reports WHERE program = ? AND report_date <= ? ORDER BY report_date DESC LIMIT 1',
