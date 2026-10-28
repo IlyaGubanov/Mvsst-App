@@ -4,12 +4,13 @@
 //    summary  — итоги отчёта и что изменилось к отчёту сравнения
 //    works    — виды работ: проект, факт, остаток
 //    objects  — объекты: статус, позиции, замечания (фильтры, поиск)
-//    matrix   — матрица «объекты × виды работ»
+//    map      — карта объектов (StreetsMap.jsx; Leaflet скачивается только на этой вкладке)
+//    matrix  — матрица «объекты × виды работ»
 //    dynamics — динамика по всем отчётам программы: готовность, вид работ, замечания
 //  Отчёт по умолчанию — последний в программе; сравнение по умолчанию — с предыдущим.
 // =====================================================================
 
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useCreateStreetsReport, useStreetsHistory, useStreetsMeta, useStreetsReport, useToggleStreetsReport } from '../../api/streets.js';
 import { Loading, ErrorBox } from '../../components/Status.jsx';
@@ -19,10 +20,14 @@ import StackedBars from '../../components/StackedBars.jsx';
 import { fdate, fdm, nf, pct, plural } from '../../utils/format.js';
 import { Delta, PosCell, reportLabel, StStatus, vol } from './ui.jsx';
 
+// Карта — отдельным файлом: библиотека Leaflet скачивается, только когда открыли вкладку «Карта»
+const StreetsMap = lazy(() => import('./StreetsMap.jsx'));
+
 const TABS = [
   { id: 'summary', name: 'Сводка' },
   { id: 'works', name: 'Виды работ' },
   { id: 'objects', name: 'Объекты' },
+  { id: 'map', name: 'Карта' },
   { id: 'matrix', name: 'Матрица' },
   { id: 'dynamics', name: 'Динамика' },
 ];
@@ -116,6 +121,7 @@ export default function StreetsPage() {
       {tab === 'summary' && <SummaryTab data={rep.data} />}
       {tab === 'works' && <WorksTab works={works} compare={compare} />}
       {tab === 'objects' && <ObjectsTab objects={objects} meta={m} />}
+      {tab === 'map' && <Suspense fallback={<Loading text="Загружаем карту…" />}><StreetsMap objects={objects} /></Suspense>}
       {tab === 'matrix' && <MatrixTab objects={objects} works={works} />}
       {tab === 'dynamics' && <DynamicsTab program={program} works={m.works} reportDate={report.date} />}
     </div>

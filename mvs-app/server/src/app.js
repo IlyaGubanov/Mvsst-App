@@ -40,11 +40,14 @@ export function createApp() {
 
   // ---------- 1. Защитные заголовки (helmet) ----------
   // Content-Security-Policy говорит браузеру, откуда можно грузить скрипты, картинки и т.д.
-  // Картинки карты благоустройства берутся с серверов OpenStreetMap — разрешаем их.
+  // Картинки подложки карты благоустройства (вкладка «Карта») берутся с tile.openstreetmap.org —
+  // разрешаем этот адрес и только для картинок (img-src); скрипты и запросы к нему запрещены.
+  // Если подложку нужно отключить или заменить своим сервером — поменяйте адрес здесь и
+  // TILES в client/src/pages/streets/StreetsMap.jsx.
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
-        'img-src': ["'self'", 'data:', 'blob:', 'https://*.tile.openstreetmap.org'],
+        'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'],
       },
     },
   }));

@@ -56,3 +56,73 @@
 .st-row .what span { font-size: 12px; color: var(--muted); }
 .st-row .proj { font-size: 13px; font-variant-numeric: tabular-nums; padding-bottom: 8px; }
 @media (max-width: 620px) { .st-row { grid-template-columns: 1fr 1fr; } .st-row .what { grid-column: 1 / -1; } }
+
+/* ---------------------------------------------------------------------
+   Вкладка «Карта» (StreetsMap.jsx). Стили самой библиотеки — leaflet/dist/leaflet.css,
+   здесь только наши маркеры, подсказки и цвета под тему приложения.
+   --------------------------------------------------------------------- */
+.st-map-wrap { display: grid; gap: 10px; }
+.st-map-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.st-map {
+  height: min(68vh, 640px); min-height: 360px; border-radius: var(--r); border: 1px solid var(--line);
+  background: var(--surface-2); /* виден, пока грузятся (или если не загрузились) картинки подложки */
+  font-family: var(--font); z-index: 0; /* панели Leaflet не перекрывают верхнюю панель приложения */
+}
+/* Телефон: список «уточняется» — под картой, карта — от края до края экрана */
+@media (max-width: 760px) {
+  .st-map-grid { grid-template-columns: 1fr; }
+  .st-map { height: 62vh; min-height: 320px; margin-inline: calc(-1 * var(--gutter)); border-radius: 0; border-inline: 0; }
+}
+
+/* Кружки-маркеры: цвет — по состоянию объекта, «!» — замечания или снижение факта */
+.st-mk, .st-dot {
+  display: grid; place-items: center; border-radius: 50%; box-sizing: border-box;
+  color: #fff; font-weight: 700; font-family: var(--font); line-height: 1;
+}
+/* leaflet.css подгружается позже и ставит маркерам display: block — уточняем селектор, чтобы победил наш */
+.leaflet-marker-icon.st-mk { display: grid; }
+.st-mk { border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .35); font-size: 13px; cursor: pointer; }
+.st-dot { flex: none; display: inline-grid; width: 16px; height: 16px; font-size: 10px; vertical-align: -3px; }
+.st-mk.good, .st-dot.good { background: var(--good); }
+.st-mk.warn, .st-dot.warn { background: var(--warn); color: #0b0b0b; }  /* на жёлтом тёмный текст читается лучше */
+.st-mk.crit, .st-dot.crit { background: var(--crit); }
+.st-dot.cl { background: var(--ink-2); color: var(--surface); outline: 2px solid color-mix(in srgb, var(--d-streets) 55%, transparent); }
+/* Кластер (несколько объектов рядом): цвет — самого тревожного объекта, вокруг — кольцо цвета раздела */
+.st-mk.cl { outline: 3px solid color-mix(in srgb, var(--d-streets) 55%, transparent); }
+.st-mk:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Список объектов без координат */
+.st-unplaced ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-height: min(60vh, 560px); overflow-y: auto; }
+.st-unplaced li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.st-unplaced li:first-child { border-top: 0; }
+.st-unplaced li a { color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-unplaced li a:hover { color: var(--accent-ink); }
+.st-unplaced li .pill { grid-column: 2; justify-self: start; }
+@media (max-width: 760px) { .st-unplaced ul { max-height: none; } }
+
+/* Всплывающие подсказки Leaflet — в цветах приложения (светлая и тёмная тема) */
+.st-map .leaflet-popup-content-wrapper, .st-map .leaflet-popup-tip { background: var(--surface); color: var(--ink); box-shadow: 0 3px 14px rgba(0, 0, 0, .3); }
+.st-map .leaflet-popup-content { margin: 12px 14px; font-size: 13px; line-height: 1.4; }
+.st-map a.leaflet-popup-close-button { color: var(--muted); }
+.st-pop { display: grid; gap: 5px; justify-items: start; }
+.st-pop .sub { font-size: 12px; color: var(--muted); }
+.st-pop .bad { color: var(--crit-ink); font-weight: 600; }
+.st-pop-title { font-weight: 600; font-size: 14px; }
+.st-pop a { color: var(--accent-ink); }
+.st-pop-link { text-decoration: none; }
+.st-pop-link:hover, .st-pop-more:hover { text-decoration: underline; }
+.st-pop-more { margin-top: 2px; text-decoration: none; font-weight: 500; }
+.st-pop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.st-pop-list li { display: flex; gap: 8px; align-items: center; }
+
+/* Кнопки «+ / −» и подпись источника карты */
+.st-map .leaflet-bar a { background: var(--surface); color: var(--ink); border-bottom-color: var(--line); }
+.st-map .leaflet-bar a:hover { background: var(--surface-2); }
+.st-map .leaflet-control-attribution { background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--ink-2); }
+.st-map .leaflet-control-attribution a { color: var(--accent-ink); }
+
+/* Тёмная тема: подложку OpenStreetMap «переворачиваем» в тёмные цвета, маркеры остаются как есть */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .st-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); }
+}
+:root[data-theme="dark"] .st-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9); }
