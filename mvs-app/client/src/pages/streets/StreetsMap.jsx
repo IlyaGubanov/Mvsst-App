@@ -62,6 +62,10 @@ export default function StreetsMap({ objects }) {
     map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noreferrer">Leaflet</a>');
     L.tileLayer(TILES, {
       maxZoom: MAX_ZOOM,
+      // Правила OpenStreetMap требуют заголовок Referer. Сервер по умолчанию запрещает его
+      // (Referrer-Policy: no-referrer), поэтому для картинок подложки отправляем только адрес сайта —
+      // без пути и параметров страницы.
+      referrerPolicy: 'strict-origin-when-cross-origin',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
     }).addTo(map);
     mapRef.current = map;

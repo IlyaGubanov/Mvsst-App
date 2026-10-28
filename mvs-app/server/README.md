@@ -55,7 +55,7 @@ server/
 ## Первый запуск (Windows, PowerShell)
 
 Перед этим: установлены Node.js и MySQL, база создана и `schema.sql` выполнен
-([docs/03-deployment.md](../docs/03-deployment.md), пункты A1–A3).
+([docs/03-deployment.md](../docs/03-deployment.md), пункты 1.1–1.4).
 
 ```bash
 cd server

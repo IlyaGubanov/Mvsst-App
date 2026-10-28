@@ -8,7 +8,8 @@
 1. [docs/01-architecture.md](docs/01-architecture.md) — из чего состоит приложение и почему так (начните с него).
 2. [docs/02-database.md](docs/02-database.md) — пояснения к базе данных и перенос старых данных.
 3. [database/schema.sql](database/schema.sql) — скрипт создания таблиц.
-4. [docs/03-deployment.md](docs/03-deployment.md) — установка у себя и на сервере.
+4. [docs/03-deployment.md](docs/03-deployment.md) — **пошаговое развёртывание**: сначала на своём компьютере (Windows),
+   потом на сервере (Linux с Nginx и PM2 или Windows Server), обновления и резервные копии.
 
 ## Состав
 
@@ -17,8 +18,9 @@
 | `database/` | структура MySQL | ✅ шаг 1 |
 | `docs/` | документация | ✅ шаг 1 |
 | `server/` | Node.js + Express: API, вход, расчёты KPI, импорт — см. [server/README.md](server/README.md) | ✅ шаг 2 (вход, роли, права), ✅ шаг 3 (перенос данных, миграции), ✅ шаг 4 (KPI и «Сводка», сверены с прежними модулями) |
-| `client/` | React + Vite: интерфейс — см. [client/README.md](client/README.md) | ✅ шаг 5 (вход, смена пароля, тема, «Сводка»); шаги 6–7 впереди |
+| `client/` | React + Vite: интерфейс — см. [client/README.md](client/README.md) | ✅ шаг 5 (вход, смена пароля, тема, «Сводка»), ✅ шаг 6 (разделы Школы, МКД, Сети, Благоустройство с картой); шаг 7 (администрирование) впереди |
+| `deploy/` | готовые файлы для сервера: Nginx, PM2, резервные копии, обновление, команды администратора | ✅ шаг 8 — см. [docs/03-deployment.md](docs/03-deployment.md) |
 
 ## Стек
 
-Node.js 24 LTS · Express 5 · MySQL 8.4 · React 19 · Vite · React Router · TanStack Query · Recharts · Leaflet · Nginx · PM2
+Node.js 24 LTS · Express 5 · MySQL 8.4 · React 19 · Vite · React Router · TanStack Query · Leaflet · Nginx · PM2

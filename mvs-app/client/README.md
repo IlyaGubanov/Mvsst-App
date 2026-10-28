@@ -50,7 +50,7 @@ npm run dev
 npm run build
 ```
 
-Готовые файлы — в `client/dist`. Их отдаёт Nginx (docs/03-deployment.md, C8) или сам сервер Node.js
+Готовые файлы — в `client/dist`. Их отдаёт Nginx (docs/03-deployment.md, пункт 2.9) или сам сервер Node.js
 при `SERVE_CLIENT=true` в `server/.env` (вариант для Windows Server без Nginx).
 
 ## Как это работает

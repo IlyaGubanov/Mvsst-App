@@ -40,7 +40,7 @@ async function main() {
     if (missingTables.length === 1 && missingTables[0] === 'schema_migrations') {
       console.log('  База создана до появления миграций — выполните: npm run migrate');
     } else {
-      console.log('  Выполните database/schema.sql (docs/03-deployment.md, пункт A3).');
+      console.log('  Выполните database/schema.sql (docs/03-deployment.md, пункт 1.4 или 2.4).');
     }
     process.exitCode = 1;
     return;
@@ -63,7 +63,7 @@ async function main() {
 
   // Кодировка базы: должна быть utf8mb4, иначе кириллица превратится в «????»
   const [{ cs }] = await query('SELECT @@character_set_database AS cs');
-  if (cs !== 'utf8mb4') console.log(`⚠ Кодировка базы ${cs}, нужна utf8mb4 (см. docs/03-deployment.md, пункт A2)`);
+  if (cs !== 'utf8mb4') console.log(`⚠ Кодировка базы ${cs}, нужна utf8mb4 (см. docs/03-deployment.md, пункт 1.4)`);
 }
 
 main()

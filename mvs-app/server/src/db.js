@@ -79,8 +79,8 @@ export function explainDbError(err) {
     ECONNREFUSED: `MySQL не отвечает на ${config.db.host}:${config.db.port}. Запущен ли сервер MySQL? Верны ли DB_HOST и DB_PORT в .env?`,
     ENOTFOUND: `Адрес ${config.db.host} не найден. Проверьте DB_HOST в .env.`,
     ER_ACCESS_DENIED_ERROR: `MySQL отказал во входе пользователю «${config.db.user}». Проверьте DB_USER и DB_PASSWORD в .env.`,
-    ER_BAD_DB_ERROR: `Базы «${config.db.name}» нет. Создайте её (docs/03-deployment.md, пункт A2) или исправьте DB_NAME.`,
-    ER_NO_SUCH_TABLE: 'Не хватает таблиц. Выполните database/schema.sql (docs/03-deployment.md, пункт A3) и запустите npm run check-db.',
+    ER_BAD_DB_ERROR: `Базы «${config.db.name}» нет. Создайте её (docs/03-deployment.md, пункт 1.4 или 2.3) или исправьте DB_NAME.`,
+    ER_NO_SUCH_TABLE: 'Не хватает таблиц. Выполните database/schema.sql (docs/03-deployment.md, пункт 1.4 или 2.4) и запустите npm run check-db.',
   };
   return hints[err?.code] ? `${hints[err.code]}\n(код ошибки: ${err.code})` : err?.message || String(err);
 }

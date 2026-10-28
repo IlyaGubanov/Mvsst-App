@@ -44,12 +44,19 @@ export function createApp() {
   // разрешаем этот адрес и только для картинок (img-src); скрипты и запросы к нему запрещены.
   // Если подложку нужно отключить или заменить своим сервером — поменяйте адрес здесь и
   // TILES в client/src/pages/streets/StreetsMap.jsx.
+  //
+  // «Только HTTPS» (заголовок HSTS и правило upgrade-insecure-requests) включаем, только если сайт
+  // работает по HTTPS (COOKIE_SECURE=true, по умолчанию в production). Иначе — например, сервер во
+  // внутренней сети без сертификата — браузер стал бы запрашивать https:// и интерфейс не загрузился бы.
+  const httpsOnly = config.session.secureCookie;
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
         'img-src': ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'],
+        'upgrade-insecure-requests': httpsOnly ? [] : null, // null — правило не отправляется
       },
     },
+    strictTransportSecurity: httpsOnly,
   }));
 
   // ---------- 2. Разбор тела запроса в формате JSON (не больше 2 МБ) ----------
