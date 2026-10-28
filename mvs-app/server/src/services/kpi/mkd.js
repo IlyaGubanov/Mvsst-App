@@ -72,6 +72,7 @@ export function agg(list, riskOf) {
   a.pct = a.w ? a.wp / a.w : 0;
   a.plan = a.wD ? a.wpl / a.wD : null;
   a.lag = a.wD ? a.wpD / a.wD - a.plan : null;
+  a.econ = a.contract - a.forecast; // экономия: договор минус факт/прогноз КС-2
   a.riskLvl = riskOf(a.lag, a.overdue > 0);
   return a;
 }

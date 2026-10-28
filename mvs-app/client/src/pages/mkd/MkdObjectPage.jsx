@@ -25,7 +25,8 @@ export default function MkdObjectPage() {
   const { object: o, items, period: p } = card.data;
   const toggle = (id) => setOpen((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const setPeriod = (v) => setParams(v === meta.data.periods[0]?.start ? {} : { period: v }, { replace: true });
-  const backLink = `/mkd${period ? `?period=${period}` : ''}`;
+  // Назад — в список адресов (вкладка «Объекты» раздела), с тем же периодом
+  const backLink = `/mkd?tab=objects${period ? `&period=${period}` : ''}`;
 
   return (
     <div className="page sect mkd">

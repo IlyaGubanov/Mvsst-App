@@ -1,6 +1,7 @@
 // =====================================================================
-//  «Капремонт МКД» — реестр адресов на отчётный период.
-//  Фильтры: лот, риск, поиск по адресу/ответственному, «только мои». Сортировка — по отставанию и др.
+//  «Капремонт МКД» — раздел направления на отчётный период. Вкладки (?tab=):
+//    (по умолчанию) «Сводка» — итоги, деньги, освоение, статусы, разделы, отставание (MkdSummary.jsx)
+//    objects        «Объекты» — реестр адресов: фильтры (лот, риск, поиск, «только мои»), сортировка
 //  Период хранится в адресе (/mkd?period=2026-10-19) — такой ссылкой можно поделиться.
 // =====================================================================
 
@@ -10,6 +11,12 @@ import { useMkdMeta, useMkdObjects, useTogglePeriod } from '../../api/mkd.js';
 import { Loading, ErrorBox } from '../../components/Status.jsx';
 import { mln, nf, pct100, periodLabel, plural } from '../../utils/format.js';
 import { PeriodSelect, ProgressBar, RiskPill, RISK } from './ui.jsx';
+import MkdSummary from './MkdSummary.jsx';
+
+const TABS = [
+  { id: 'summary', name: 'Сводка' },
+  { id: 'objects', name: 'Объекты' },
+];
 
 const SORTS = {
   lag: { name: 'по отставанию', fn: (a, b) => (a.lag ?? 1e9) - (b.lag ?? 1e9) },
@@ -21,6 +28,7 @@ const SORTS = {
 export default function MkdRegistryPage() {
   const [params, setParams] = useSearchParams();
   const period = params.get('period') || undefined;
+  const tab = TABS.some((t) => t.id === params.get('tab')) ? params.get('tab') : 'summary';
   const navigate = useNavigate();
   const meta = useMkdMeta();
   const registry = useMkdObjects(period);
@@ -52,13 +60,19 @@ export default function MkdRegistryPage() {
   const { total, period: p } = registry.data;
   const sectionName = Object.fromEntries(m.sections.map((s) => [s.id, s.name]));
   const canEnter = m.canEditAll || m.myObjectIds.length > 0;
-  const setPeriod = (v) => setParams(v === m.periods[0]?.start ? {} : { period: v }, { replace: true });
+  // Меняем один параметр адреса, остальные (вкладка, фильтры сводки) сохраняем
+  const setParam = (key, value) => {
+    const next = new URLSearchParams(params);
+    if (value) next.set(key, value); else next.delete(key);
+    setParams(next, { replace: true });
+  };
+  const setPeriod = (v) => setParam('period', v === m.periods[0]?.start ? null : v);
   const sum = (key) => list.reduce((a, o) => a + (o[key] || 0), 0);
   const riskCount = (r) => objects.filter((o) => o.risk === r).length;
   const openObject = (o) => navigate(`/mkd/${o.id}${period ? `?period=${period}` : ''}`);
 
   return (
-    <div className="page sect mkd registry">
+    <div className="page sect mkd">
       <nav className="crumbs" aria-label="Навигация"><Link to="/">Сводка</Link><span>/</span><span>Капремонт МКД</span></nav>
 
       <div className="head">
@@ -80,6 +94,15 @@ export default function MkdRegistryPage() {
         </div>
       </div>
 
+      <div className="subtabs" role="tablist" aria-label="Разделы">
+        {TABS.map((t) => (
+          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setParam('tab', t.id === 'summary' ? null : t.id)}>{t.name}</button>
+        ))}
+      </div>
+
+      {tab === 'summary' ? <MkdSummary meta={m} period={period} /> : (
+      // .registry: на телефоне вместо таблицы — карточки
+      <div className="registry stack" style={{ gap: 28 }}>
       <section className="tiles" aria-label="Итоги по направлению">
         <div className="tile"><span className="l">Готовность</span><span className="v">{pct100(total.pct)}</span><span className="s">план {pct100(total.plan)}</span></div>
         <div className="tile"><span className="l">Отклонение</span><span className="v"><RiskPill risk={total.risk} lag={total.lag} /></span><span className="s">порог {m.thresholds.warn} / {m.thresholds.crit} п.п.</span></div>
@@ -176,6 +199,8 @@ export default function MkdRegistryPage() {
           </Link>
         ))}
       </div>
+      </div>
+      )}
     </div>
   );
 }

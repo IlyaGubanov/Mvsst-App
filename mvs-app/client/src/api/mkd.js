@@ -17,6 +17,19 @@ export const useMkdObjects = (period) => useQuery({
   queryFn: () => api(withPeriod('/mkd/objects', period)),
 });
 
+/**
+ * Экран «Сводка» раздела на период. filters — { section, group, person, q } (пустые не передаются).
+ * Ответ сервер считает по всем периодам сразу (график освоения, «что изменилось»).
+ */
+export const useMkdSummary = (period, filters = {}) => {
+  const qs = new URLSearchParams(Object.entries({ period, ...filters }).filter(([, v]) => v != null && v !== '')).toString();
+  return useQuery({
+    queryKey: ['mkd', 'summary', period ?? 'current', filters],
+    queryFn: () => api(`/mkd/summary${qs ? `?${qs}` : ''}`),
+    placeholderData: (prev) => prev, // при смене фильтра показываем прежние цифры, пока считаются новые
+  });
+};
+
 /** Карточка адреса на период. */
 export const useMkdObject = (id, period, options = {}) => useQuery({
   queryKey: ['mkd', 'object', id, period ?? 'current'],

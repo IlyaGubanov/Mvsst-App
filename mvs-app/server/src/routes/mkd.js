@@ -20,6 +20,7 @@ import { validate } from '../middleware/validate.js';
 import { editableObjectIds, responsibleByObject } from '../services/access.js';
 import { audit } from '../services/audit.js';
 import { computeMkdState } from '../services/kpi/mkd.js';
+import { computeMkdSummary } from '../services/kpi/mkdSummary.js';
 import { computeKpi, saveSnapshot } from '../services/kpi/index.js';
 import { currentPeriod, ensureEditablePeriod, listPeriods, periodOut, resolveViewPeriod } from '../services/periods.js';
 import { addPeriodAdminRoutes, startParams } from './periodAdmin.js';
@@ -86,6 +87,24 @@ router.get('/objects', validate(periodQuery, 'query'), async (req, res) => {
       ...aggOut(o.a),
     })),
   });
+});
+
+// ---------------------------------------------------------------------
+// GET /summary — экран «Сводка» раздела: итоги, деньги по стадиям, освоение по периодам,
+// статусы, светофор, разделы, отставание, что изменилось. Фильтры — как в прежнем модуле.
+// ---------------------------------------------------------------------
+const summaryQuery = periodQuery.extend({
+  section: z.coerce.number().int().positive().optional(),
+  person: z.coerce.number().int().positive().optional(),
+  group: z.string().trim().max(100).optional(),
+  q: z.string().trim().max(100).optional(),
+});
+
+router.get('/summary', validate(summaryQuery, 'query'), async (req, res) => {
+  const d = req.direction;
+  const { period: start, ...filters } = req.valid.query;
+  const period = await resolveViewPeriod(d, start);
+  res.json({ period: periodOut(period), ...(await computeMkdSummary(d, period.period_start, filters)) });
 });
 
 // ---------------------------------------------------------------------
